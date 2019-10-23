@@ -31,7 +31,7 @@ class BrowserDetectedI18nContentSupport : DefaultI18nContentSupport() {
 
     // Gets the languages accepted by the browser from the HTTP request and determines the best locale
     // by the weight assigned to the language
-    protected fun getLocaleFromHttpRequest(): Locale {
+    fun getLocaleFromHttpRequest(): Locale {
         val request = Components.getComponent(HttpServletRequest::class.java)
         val acceptLanguage = request.getHeader("Accept-Language")
         val ranges = Locale.LanguageRange.parse(acceptLanguage)
