@@ -13,10 +13,10 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.Arrays
 
-class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
+open class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
 
     @Throws(IOException::class, ServletException::class)
-    open override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
+    override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
         val filterParameters = FilterParameters(request, response, chain)
 
         if (checkCondition(filterParameters)) {
