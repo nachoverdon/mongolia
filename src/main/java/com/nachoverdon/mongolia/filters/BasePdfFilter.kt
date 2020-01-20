@@ -50,12 +50,13 @@ import java.util.Arrays
  *
  */
 open class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
+    var filterParameters: FilterParameters? = null;
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
-        val filterParameters = FilterParameters(request, response, chain)
+        filterParameters = FilterParameters(request, response, chain)
 
-        if (checkCondition(filterParameters)) {
+        if (checkCondition()) {
             val wk = WkHtmlToPdf()
             val newResponse = CharResponseWrapper(response)
             chain.doFilter(request, newResponse)
@@ -63,48 +64,50 @@ open class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
             val html: String? = newResponse.toString()
 
             if (html != null) {
-                val parameters = getParameters(filterParameters)
+                val parameters = getParameters()
                 val inputStream = wk.generatePdfAsInputStream(html, parameters)
 
-                if (shouldDownload(filterParameters))
-                    download(filterParameters, inputStream)
+                if (shouldDownload())
+                    download(inputStream)
                 else
-                    action(filterParameters)
+                    action()
 
+                filterParameters = null
             }
         } else {
             chain.doFilter(request, response)
+            filterParameters = null
             return
         }
     }
 
-    open fun checkCondition(filterParameters: FilterParameters): Boolean {
+    open fun checkCondition(): Boolean {
         return true
     }
 
-    open fun getParameters(filterParameters: FilterParameters): List<String> {
+    open fun getParameters(): List<String> {
         return Arrays.asList("--print-media-type")
     }
 
-    open fun shouldDownload(filterParameters: FilterParameters): Boolean {
+    open fun shouldDownload(): Boolean {
         return true
     }
 
-    open fun getFileName(filterParameters: FilterParameters): String {
+    open fun getFileName(): String {
         return "document"
     }
 
     @Throws(IOException::class)
-    open fun download(filterParameters: FilterParameters, inputStream: InputStream?) {
-        IOUtils.copy(inputStream!!, filterParameters.response.outputStream)
+    open fun download(inputStream: InputStream?) {
+        IOUtils.copy(inputStream!!, filterParameters!!.response.outputStream)
         inputStream.close()
 
-        val fileName = getFileName(filterParameters)
-        filterParameters.response.setHeader("Content-Type", "application/pdf;charset=utf-8")
-        filterParameters.response.setHeader("Content-Disposition", "attachment; filename=$fileName.pdf")
+        val fileName = getFileName()
+        filterParameters!!.response.setHeader("Content-Type", "application/pdf;charset=utf-8")
+        filterParameters!!.response.setHeader("Content-Disposition", "attachment; filename=$fileName.pdf")
     }
 
-    open fun action(filterParameters: FilterParameters) {}
+    open fun action() {}
 
 }
 
