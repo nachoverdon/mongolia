@@ -14,7 +14,16 @@ import java.io.InputStream
 import java.util.Arrays
 
 /**
- * This class uses WkHtmlToPdf to convert a page rendered with Magnolia into a PDF.
+ * This class uses WkHtmlToPdf to convert a page rendered with Magnolia into a PDF. To use it, extend from it and
+ * override its methods. Then add the path to your extended filter on your Magnolia configuration on
+ *  config:
+ *    server:
+ *      filters:
+ *        cms:
+ *          yourPdfFilter: (Make sure to put your filter BEFORE the "rendering" filter or it wont work)
+ *            class: your.package.YourPdfFilter
+ *            enabled: true
+ *
  *
  * There are 4 methods that you might want to override.
  * checkCondition().
@@ -30,6 +39,7 @@ import java.util.Arrays
  *
  * getFileName()
  *      The name of the served file.
+ *
  *
  * Optionally, you can also override download() and action()
  * download()
