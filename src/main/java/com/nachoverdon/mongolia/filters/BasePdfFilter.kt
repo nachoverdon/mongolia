@@ -16,8 +16,10 @@ import java.util.Arrays
 class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
 
     @Throws(IOException::class, ServletException::class)
-    override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
-        if (checkCondition(request, response, chain)) {
+    open override fun doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {
+        val filterParameters = FilterParameters(request, response, chain)
+
+        if (checkCondition(filterParameters)) {
             val wk = WkHtmlToPdf()
             val newResponse = CharResponseWrapper(response)
             chain.doFilter(request, newResponse)
@@ -25,13 +27,13 @@ class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
             val html = newResponse.toString()
 
             if (html != null) {
-                val parameters = getParameters(request, response, chain)
+                val parameters = getParameters(filterParameters)
                 val inputStream = wk.generatePdfAsInputStream(html, parameters)
 
-                if (shouldDownload(request, response, chain))
-                    download(request, response, chain, inputStream)
+                if (shouldDownload(filterParameters))
+                    download(filterParameters, inputStream)
                 else
-                    action(request, response, chain)
+                    action(filterParameters)
 
             }
         } else {
@@ -40,32 +42,34 @@ class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
         }
     }
 
-    fun checkCondition(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): Boolean {
+    open fun checkCondition(filterParameters: FilterParameters): Boolean {
         return true
     }
 
-    fun getParameters(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): List<String> {
+    open fun getParameters(filterParameters: FilterParameters): List<String> {
         return Arrays.asList("--print-media-type")
     }
 
-    fun shouldDownload(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): Boolean {
+    open fun shouldDownload(filterParameters: FilterParameters): Boolean {
         return true
     }
 
-    fun getFileName(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): String {
+    open fun getFileName(filterParameters: FilterParameters): String {
         return "document"
     }
 
     @Throws(IOException::class)
-    fun download(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain, inputStream: InputStream?) {
-        IOUtils.copy(inputStream!!, response.outputStream)
+    open fun download(filterParameters: FilterParameters, inputStream: InputStream?) {
+        IOUtils.copy(inputStream!!, filterParameters.response.outputStream)
         inputStream.close()
 
-        val fileName = getFileName(request, response, chain)
-        response.setHeader("Content-Type", "application/pdf;charset=utf-8")
-        response.setHeader("Content-Disposition", "attachment; filename=$fileName.pdf")
+        val fileName = getFileName(filterParameters)
+        filterParameters.response.setHeader("Content-Type", "application/pdf;charset=utf-8")
+        filterParameters.response.setHeader("Content-Disposition", "attachment; filename=$fileName.pdf")
     }
 
-    fun action(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain) {}
+    open fun action(filterParameters: FilterParameters) {}
 
 }
+
+class FilterParameters(val request: HttpServletRequest, val response: HttpServletResponse, val chain: FilterChain)
