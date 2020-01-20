@@ -24,7 +24,7 @@ open class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
             val newResponse = CharResponseWrapper(response)
             chain.doFilter(request, newResponse)
 
-            val html = newResponse.toString()
+            val html: String? = newResponse.toString()
 
             if (html != null) {
                 val parameters = getParameters(filterParameters)
