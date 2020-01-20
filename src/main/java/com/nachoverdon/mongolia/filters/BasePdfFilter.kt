@@ -13,6 +13,32 @@ import java.io.IOException
 import java.io.InputStream
 import java.util.Arrays
 
+/**
+ * This class uses WkHtmlToPdf to convert a page rendered with Magnolia into a PDF.
+ *
+ * There are 4 methods that you might want to override.
+ * checkCondition().
+ *      Checks whether it should proceed with the PDF conversion. Override this class to check if the
+ *      current page is should be converted, for exemple, by checking the node page's template.
+ *
+ * getParameters()
+ *      A List of wkhtmltopdf parameters https://wkhtmltopdf.org/usage/wkhtmltopdf.txt. WkHtmlToPdf automatically
+ *      includes ["-", "-"] as last parameters, so you don't need to include them.
+ *
+ * shouldDownload()
+ *      Whether the file should be served or you want to do something else with it, like store it as a Resource Node.
+ *
+ * getFileName()
+ *      The name of the served file.
+ *
+ * Optionally, you can also override download() and action()
+ * download()
+ *      Will be triggered when shouldDownload() returns true. By default it serves the PDF file.
+ *
+ * action()
+ *      Will be triggered when shouldDownload returns false. Does nothing unless overriden.
+ *
+ */
 open class BasePdfFilter : OncePerRequestAbstractMgnlFilter() {
 
     @Throws(IOException::class, ServletException::class)
