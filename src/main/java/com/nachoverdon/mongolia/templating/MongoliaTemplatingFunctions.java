@@ -49,7 +49,6 @@ public class MongoliaTemplatingFunctions {
      * Returns today's date formatted with the given pattern
      *
      * @param pattern https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
-     * @return
      */
     public String getTodayDate(String pattern) {
         DateFormat dateFormat = new SimpleDateFormat(pattern);
@@ -62,7 +61,6 @@ public class MongoliaTemplatingFunctions {
      *
      * @param date
      * @param pattern https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
-     * @return
      */
     public String formatDate(Date date, String pattern) {
         return DateUtil.format(date, pattern);
@@ -72,7 +70,6 @@ public class MongoliaTemplatingFunctions {
      * See {@link #formatDate(Date, String)}
      *
      * @param date
-     * @return
      */
     public String formatDate(Date date) {
         return formatDate(date, "dd MMM yyyy");
@@ -81,7 +78,6 @@ public class MongoliaTemplatingFunctions {
     /**
      * Gets the current locale
      *
-     * @return
      */
     public Locale getLocale() {
         return i18nContentSupport.getLocale();
@@ -90,7 +86,6 @@ public class MongoliaTemplatingFunctions {
     /**
      * Gets the current lenguage
      *
-     * @return
      */
     public String getLanguage() {
         return getLocale().getLanguage();
@@ -100,7 +95,6 @@ public class MongoliaTemplatingFunctions {
      * Gets the URL of the current page.
      *
      * @param withQueryString Optionally gets the query string.
-     * @return
      */
     public String currentUrl(boolean withQueryString) {
         String url;
@@ -114,7 +108,6 @@ public class MongoliaTemplatingFunctions {
     /**
      * See {@link #currentUrl(boolean)}
      *
-     * @return
      */
     public String currentUrl() {
         return currentUrl(true);
@@ -125,8 +118,7 @@ public class MongoliaTemplatingFunctions {
      * Prepares the Node for the current language to access its translated properties without the need to add "_lang".
      * Checks if the Node has already been wrapped before doing so.
      *
-     * @param node
-     * @return
+     * @param node A Node with translatable fields
      */
     public Node wrapForI18n(Node node) {
         return NodeUtil.isWrappedWith(node, I18nNodeWrapper.class) ? node : cmsfn.wrapForI18n(node);
@@ -134,7 +126,9 @@ public class MongoliaTemplatingFunctions {
 
     /**
      * Returns a base64 String of the image from the DAM. To be used on img tags like:
+     * <pre>{@code
      *      <img src="${mongofn.damImageToBase64(content.image)!}"/>
+     * }</pre>
      *
      * @param id jcr:uuid of the image on the DAM
      * @return The image encoded to base64 or an empty string
@@ -153,7 +147,9 @@ public class MongoliaTemplatingFunctions {
 
     /**
      * Returns a base64 String of the image from the Resources folder and the given MIME type. Usage on img tags like:
+     * <pre>{@code
      *      <img src="${mongofn.damImageToBase64(ctx.contextPath + "/.resources/yourmodule/image.png", "image/png")!}"/>
+     * }</pre>
      *
      * @param path Path to the resource image
      * @param mimeType MIME Type of the image https://www.sitepoint.com/mime-types-complete-list/

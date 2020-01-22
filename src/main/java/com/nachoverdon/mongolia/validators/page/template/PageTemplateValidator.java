@@ -42,8 +42,8 @@ public class PageTemplateValidator extends AbstractStringValidator {
     /**
      * Checks if the page is of the same type as the one specified in {@link #templateName}
      *
-     * @param value
-     * @return
+     * @param value The selected page. Can be a path or a uuid.
+     * @return true if the value is valid
      */
     @Override
     protected boolean isValidValue(String value) {
@@ -65,8 +65,8 @@ public class PageTemplateValidator extends AbstractStringValidator {
     /**
      * Checks if the value is a path by just checking if the first character is a "/"
      *
-     * @param value
-     * @return
+     * @param value The selected page. Can be a path or a uuid.
+     * @return true if the value is a path
      */
     protected boolean isPath(String value) {
         return value.startsWith("/");

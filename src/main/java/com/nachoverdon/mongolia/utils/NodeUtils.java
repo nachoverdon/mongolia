@@ -11,8 +11,8 @@ public class NodeUtils extends NodeUtil {
     /**
      * Gets the first node that it finds or null
      *
-     * @param nodes
-     * @return
+     * @param nodes A NodeIterator
+     * @return First available Node
      */
     @Nullable
     public static Node getAnyOrNull(@NotNull NodeIterator nodes) {

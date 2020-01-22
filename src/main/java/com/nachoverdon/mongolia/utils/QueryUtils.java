@@ -15,8 +15,6 @@ public class QueryUtils extends QueryUtil {
     /**
      * Wraps a String value between quotes
      *
-     * @param value
-     * @return
      */
     public static String quoteSQL2Value(String value) {
         return "'" + value.replaceAll("'", "''") + "'";
@@ -25,8 +23,6 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #quoteSQL2Value(String)}
      *
-     * @param value
-     * @return
      */
     public static String quoteSQL2Value(int value) {
         return quoteSQL2Value(String.valueOf(value));
@@ -35,8 +31,6 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #quoteSQL2Value(String)}
      *
-     * @param value
-     * @return
      */
     public static String quoteSQL2Value(Object value) {
         return quoteSQL2Value(String.valueOf(value));
@@ -49,9 +43,7 @@ public class QueryUtils extends QueryUtil {
      * @param workspace The desired workspace. Ex: "website"
      * @param statement The SQL/xpath statement that will be executed
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
-     * @param returnItemType
-     * @param isSelector
-     * @return
+     * @return First available Node.
      */
     public static Node searchSingle(String workspace, String statement, String language, String returnItemType, boolean isSelector) {
         try {
@@ -68,11 +60,6 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #searchSingle(String, String, String, String, boolean)}
      *
-     * @param workspace
-     * @param statement
-     * @param language
-     * @param returnItemType
-     * @return
      */
     public static Node searchSingle(String workspace, String statement, String language, String returnItemType) {
         return searchSingle(workspace, statement, language, returnItemType, false);
@@ -81,10 +68,6 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #searchSingle(String, String, String, String, boolean)}
      *
-     * @param workspace
-     * @param statement
-     * @param language
-     * @return
      */
     public static Node searchSingle(String workspace, String statement, String language) {
         try {
@@ -100,9 +83,6 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #searchSingle(String, String, String, String, boolean)}
      *
-     * @param workspace
-     * @param statement
-     * @return
      */
     public static Node searchSingle(String workspace, String statement) {
         return searchSingle(workspace, statement, Query.JCR_SQL2);
