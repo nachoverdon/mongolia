@@ -14,7 +14,9 @@ class WkHtmlToPdf {
      *
      * Images:
      * Images cannot be directly linked, they need to be encoded to Base64 and added inline. To accomplish this, you can
-     * use resourcesImageToBase64() and damImageToBase64() from MongoTemplatingFunctions.
+     * use:
+     *  @see com.nachoverdon.mongolia.templating.MongoliaTemplatingFunctions.resourcesImageToBase64
+     *  @see com.nachoverdon.mongolia.templating.MongoliaTemplatingFunctions.damImageToBase64
      *
      * CSS:
      * Similarly, CSS must also be embedded using <style> stags instead of linked.
