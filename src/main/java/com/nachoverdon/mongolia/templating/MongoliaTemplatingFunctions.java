@@ -69,7 +69,7 @@ public class MongoliaTemplatingFunctions {
     }
 
     /**
-     * See formatDate(Date, String)
+     * See {@link #formatDate(Date, String)}
      *
      * @param date
      * @return
@@ -112,7 +112,7 @@ public class MongoliaTemplatingFunctions {
     }
 
     /**
-     * See currentUrl
+     * See {@link #currentUrl(boolean)}
      *
      * @return
      */
