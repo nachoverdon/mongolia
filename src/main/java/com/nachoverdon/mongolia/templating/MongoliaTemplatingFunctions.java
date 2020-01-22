@@ -46,7 +46,7 @@ public class MongoliaTemplatingFunctions {
     }
 
     /**
-     * Returns the date formatted for the product pdf for a given pattern
+     * Returns today's date formatted with the given pattern
      *
      * @param pattern https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
      * @return
