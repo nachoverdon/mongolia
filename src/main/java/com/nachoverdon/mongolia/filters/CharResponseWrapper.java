@@ -1,4 +1,4 @@
-package com.nachoverdon.mongolia.utils;
+package com.nachoverdon.mongolia.filters;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +20,7 @@ public class CharResponseWrapper extends HttpServletResponseWrapper {
         charWriter = new CharArrayWriter();
     }
 
+    @Override
     public ServletOutputStream getOutputStream() throws IOException {
         if (getWriterCalled) {
             throw new IllegalStateException("getWriter already called");
@@ -29,6 +30,7 @@ public class CharResponseWrapper extends HttpServletResponseWrapper {
         return super.getOutputStream();
     }
 
+    @Override
     public PrintWriter getWriter() {
         if (writer != null) {
             return writer;
@@ -41,6 +43,7 @@ public class CharResponseWrapper extends HttpServletResponseWrapper {
         return writer;
     }
 
+    @Override
     public String toString() {
         String s = null;
 

@@ -1,7 +1,8 @@
-package com.nachoverdon.mongolia.utils;
+package com.nachoverdon.mongolia.node2bean;
 
 import com.nachoverdon.mongolia.annotations.Children;
 import com.nachoverdon.mongolia.annotations.Translatable;
+import com.nachoverdon.mongolia.utils.ReflectionUtil;
 import info.magnolia.cms.i18n.I18nContentSupportFactory;
 import info.magnolia.context.MgnlContext;
 import org.apache.commons.lang3.StringUtils;
