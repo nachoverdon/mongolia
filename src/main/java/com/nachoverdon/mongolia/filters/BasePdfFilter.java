@@ -1,7 +1,6 @@
 package com.nachoverdon.mongolia.filters;
 
 import com.nachoverdon.mongolia.pdf.WkHtmlToPdf;
-import com.nachoverdon.mongolia.utils.CharResponseWrapper;
 import info.magnolia.cms.filters.OncePerRequestAbstractMgnlFilter;
 import org.apache.commons.io.IOUtils;
 
