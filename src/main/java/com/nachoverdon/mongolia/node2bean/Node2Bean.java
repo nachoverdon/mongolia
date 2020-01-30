@@ -27,39 +27,41 @@ public class Node2Bean {
     public Object toBean(Node node, Class className, String lang) throws RepositoryException {
 
         // @TODO: if lang is null, empty or is not one of the available languages, get current language
-//        if(StringUtil.EmptyOrNull(lang) || !getAvailableImportLanguagesArray().contains(lang))
+//        if (StringUtil.EmptyOrNull(lang) || !getAvailableImportLanguagesArray().contains(lang))
         if (lang == null || lang.equals(StringUtils.EMPTY))
             lang = MgnlContext.getAggregationState().getLocale().getLanguage();
 
         try {
            Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(className);
 
-            if(constructor != null)  {
+            if (constructor != null)  {
                 Object object = constructor.newInstance();
-                Collection<String> objectFieldsNames = getFieldsNames(object);
+                Collection<String> objectFieldsNames = ReflectionUtil.getFieldsNames(object);
 
                 /* Loop through node properties */
                 PropertyIterator propertyIterator = node.getProperties();
-                while(propertyIterator.hasNext()) {
+
+                while (propertyIterator.hasNext()) {
                     Property property = propertyIterator.nextProperty();
+
                     /* Check if object has that property */
-                    if(objectFieldsNames.contains(property.getName())) {
+                    if (objectFieldsNames.contains(property.getName())) {
                         try {
-
                             Field f = className.getField(property.getName());
-
                             String defaultLang = MgnlContext.isWebContext()
                                     ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
                                     : "en";
 
                             /* Check i18n properties to return it correctly */
-                            if(!lang.equals(defaultLang) && f.getDeclaredAnnotation(Translatable.class) != null ) {
+                            if (!lang.equals(defaultLang) && f.getDeclaredAnnotation(Translatable.class) != null ) {
 
                                 //Fill object with lang values
                                 String propertyNameI18n = property.getName() + "_" + lang;
-                                if(node.hasProperty(propertyNameI18n)){
+
+                                if (node.hasProperty(propertyNameI18n)){
                                     Property propertyI18n = node.getProperty(propertyNameI18n);
-                                    if(propertyI18n.getValue() != null){
+
+                                    if (propertyI18n.getValue() != null){
                                         f.set(object, getPropertyByType(propertyI18n));
                                     } else {
                                         f.set(object, getPropertyByType(property));
@@ -78,20 +80,26 @@ public class Node2Bean {
 
                 /* Loop through node children */
                 NodeIterator nodeIterator = node.getNodes();
-                while(nodeIterator.hasNext()) {
+
+                while (nodeIterator.hasNext()) {
                     Node children = nodeIterator.nextNode();
-                    if(objectFieldsNames.contains(children.getName())) {
+
+                    if (objectFieldsNames.contains(children.getName())) {
                         try {
                             Field f = className.getField(children.getName());
                             Class clazz = f.getDeclaredAnnotation(Children.class).typeOf();
                             boolean isCollection = f.getType().getName().equals(Collection.class.getName());
-                            if(f.getDeclaredAnnotation(Children.class) != null && isCollection) {
+
+                            if (f.getDeclaredAnnotation(Children.class) != null && isCollection) {
                                 Collection<Object> childrenNodeList = new ArrayList<>();
                                 NodeIterator nodeListIterator = children.getNodes();
-                                while(nodeListIterator.hasNext()) {
+
+                                while (nodeListIterator.hasNext()) {
                                     Node item = nodeListIterator.nextNode();
+
                                     childrenNodeList.add(this.toBean(item, clazz));
                                 }
+
                                 /* Add children to the object */
                                 f.set(object, childrenNodeList);
                             }
@@ -100,6 +108,7 @@ public class Node2Bean {
                         }
                     }
                 }
+
                 return object;
             }
 
@@ -118,43 +127,50 @@ public class Node2Bean {
 
         String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
         Constructor<?> constructor = (className.getConstructors().length > 0) ? className.getConstructors()[0] : null;
-        String addedQuery = "";
+        StringBuilder addedQuerySB = new StringBuilder();
 
         try {
-            try {
-                try {
-                    if(constructor != null)  {
+            if (constructor != null)  {
+                Object object = constructor.newInstance();
+                List<Field> fieldList = ReflectionUtil.getAllFields(object.getClass());
+                Iterator<Field> fieldsIterator = fieldList.iterator();
 
-                        Object object = constructor.newInstance();
-                        List<Field> fieldList = ReflectionUtil.getAllFields(object.getClass());
-                        Iterator<Field> fieldsIterator = fieldList.iterator();
+                while (fieldsIterator.hasNext()) {
+                    Field f = fieldsIterator.next();
+                    String fieldName = f.getName();
 
-                        while (fieldsIterator.hasNext()) {
-                            Field f = fieldsIterator.next();
-                            String fieldName = f.getName();
+                    /* Check if is a translatable field */
+                    if (f.getDeclaredAnnotation(Translatable.class) != null) {
+                        String defaultLang = MgnlContext.isWebContext()
+                                ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
+                                : "en";
 
-                            /* Check if is a translatable field */
-                            if(f.getDeclaredAnnotation(Translatable.class) != null) {
-                                String defaultLang = MgnlContext.isWebContext()
-                                        ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
-                                        : "en";
-                                fieldName += ( (!currentLang.equals(defaultLang)) ? "_" + currentLang : "" );
-                            }
-
-                            /* Prevent children to destroy the query */
-                            if(f.getDeclaredAnnotation(Children.class) == null) {
-                                addedQuery += "LOWER(t." + fieldName + ") LIKE '%%" + StringUtils.replace(queryString.toLowerCase(), "'", "''") + "%%' OR ";
-                            }
-                        }
+                        fieldName += ( (!currentLang.equals(defaultLang)) ? "_" + currentLang : "" );
                     }
-                } catch (InvocationTargetException e) { log.error(e.getMessage()); }
-            } catch (IllegalAccessException e) { log.error(e.getMessage()); }
-        } catch (InstantiationException e) { log.error("Cannot instantiate object", e.getMessage()); }
+
+                    /* Prevent children to destroy the query */
+                    if (f.getDeclaredAnnotation(Children.class) == null) {
+                        addedQuerySB.append("LOWER(t.")
+                            .append(fieldName)
+                            .append(") LIKE '%%")
+                            .append(StringUtils.replace(queryString.toLowerCase(), "'", "''"))
+                            .append("%%' OR ");
+                    }
+                }
+            }
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            log.error(e.getMessage());
+        } catch (InstantiationException e) {
+            log.error("Cannot instantiate object", e.getMessage());
+        }
+
+        String addedQuery = addedQuerySB.toString();
 
         //Remove last 2 characters if they are 'OR'
-        if( addedQuery.substring((addedQuery.length() - 3)).equals("OR ") ) {
+        if ( addedQuery.substring((addedQuery.length() - 3)).equals("OR ") ) {
             addedQuery = addedQuery.substring(0, addedQuery.length() - 3);
         }
+
         return addedQuery;
     }
 
@@ -174,17 +190,5 @@ public class Node2Bean {
             default:
                 return null;
         }
-    }
-
-    public Collection<String> getFieldsNames(Object object) {
-
-        Collection<String> fieldNames = new ArrayList<>();
-        List<Field> objectFields = ReflectionUtil.getAllFields(object.getClass());
-
-        for(Field f: objectFields) {
-            fieldNames.add(f.getName());
-        }
-
-        return fieldNames;
     }
 }

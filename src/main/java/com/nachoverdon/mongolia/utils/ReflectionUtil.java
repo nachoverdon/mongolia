@@ -3,10 +3,7 @@ package com.nachoverdon.mongolia.utils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReflectionUtil {
@@ -34,6 +31,19 @@ public class ReflectionUtil {
         }
 
         return constructor;
+    }
+
+
+    public static Collection<String> getFieldsNames(Object object) {
+
+        Collection<String> fieldNames = new ArrayList<>();
+        List<Field> objectFields = getAllFields(object.getClass());
+
+        for(Field f: objectFields) {
+            fieldNames.add(f.getName());
+        }
+
+        return fieldNames;
     }
 
 }
