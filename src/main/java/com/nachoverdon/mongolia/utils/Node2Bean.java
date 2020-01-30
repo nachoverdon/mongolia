@@ -31,85 +31,84 @@ public class Node2Bean {
             lang = MgnlContext.getAggregationState().getLocale().getLanguage();
 
         try {
-            try {
-                try {
+           Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(className);
 
-                    Constructor<?> constructor = (className.getConstructors().length > 0) ? className.getConstructors()[0] : null;
-                    if(constructor != null)  {
-                        log.debug("Construtor parameter Count " + constructor.getParameterCount());
-                        Object object = constructor.newInstance();
-                        Collection<String> objectFieldsNames = getFieldsNames(object);
+            if(constructor != null)  {
+                Object object = constructor.newInstance();
+                Collection<String> objectFieldsNames = getFieldsNames(object);
 
-                        /* Loop through node properties */
-                        PropertyIterator propertyIterator = node.getProperties();
-                        while(propertyIterator.hasNext()) {
-                            Property property = propertyIterator.nextProperty();
-                            /* Check if object has that property */
-                            if(objectFieldsNames.contains(property.getName())) {
-                                try {
+                /* Loop through node properties */
+                PropertyIterator propertyIterator = node.getProperties();
+                while(propertyIterator.hasNext()) {
+                    Property property = propertyIterator.nextProperty();
+                    /* Check if object has that property */
+                    if(objectFieldsNames.contains(property.getName())) {
+                        try {
 
-                                    Field f = className.getField(property.getName());
+                            Field f = className.getField(property.getName());
 
-                                    String defaultLang = MgnlContext.isWebContext()
-                                            ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
-                                            : "en";
+                            String defaultLang = MgnlContext.isWebContext()
+                                    ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
+                                    : "en";
 
-                                    /* Check i18n properties to return it correctly */
-                                    if(!lang.equals(defaultLang) && f.getDeclaredAnnotation(Translatable.class) != null ) {
+                            /* Check i18n properties to return it correctly */
+                            if(!lang.equals(defaultLang) && f.getDeclaredAnnotation(Translatable.class) != null ) {
 
-                                        //Fill object with lang values
-                                        String propertyNameI18n = property.getName() + "_" + lang;
-                                        if(node.hasProperty(propertyNameI18n)){
-                                            Property propertyI18n = node.getProperty(propertyNameI18n);
-                                            if(propertyI18n.getValue() != null){
-                                                f.set(object, getPropertyByType(propertyI18n));
-                                            } else {
-                                                f.set(object, getPropertyByType(property));
-                                            }
-                                        }
+                                //Fill object with lang values
+                                String propertyNameI18n = property.getName() + "_" + lang;
+                                if(node.hasProperty(propertyNameI18n)){
+                                    Property propertyI18n = node.getProperty(propertyNameI18n);
+                                    if(propertyI18n.getValue() != null){
+                                        f.set(object, getPropertyByType(propertyI18n));
                                     } else {
-                                        //Fill object with default lang values
                                         f.set(object, getPropertyByType(property));
                                     }
-
-                                } catch (NoSuchFieldException e ) {
-                                    log.error("Field '" + property.getName() +"' not found in '" + className.getName() +"' class");
                                 }
+                            } else {
+                                //Fill object with default lang values
+                                f.set(object, getPropertyByType(property));
                             }
-                        }
 
-                        /* Loop through node children */
-                        NodeIterator nodeIterator = node.getNodes();
-                        while(nodeIterator.hasNext()) {
-                            Node children = nodeIterator.nextNode();
-                            if(objectFieldsNames.contains(children.getName())) {
-                                try {
-                                    Field f = className.getField(children.getName());
-                                    Class clazz = f.getDeclaredAnnotation(Children.class).typeOf();
-                                    boolean isCollection = f.getType().getName().equals(Collection.class.getName());
-                                    if(f.getDeclaredAnnotation(Children.class) != null && isCollection) {
-                                        Collection<Object> childrenNodeList = new ArrayList<>();
-                                        NodeIterator nodeListIterator = children.getNodes();
-                                        while(nodeListIterator.hasNext()) {
-                                            Node item = nodeListIterator.nextNode();
-                                            childrenNodeList.add(this.toBean(item, clazz));
-                                        }
-                                        /* Add children to the object */
-                                        f.set(object, childrenNodeList);
-                                    }
-                                } catch(NoSuchFieldException e) {
-                                    log.error("Field '" + node.getName() +"' not found in '" + className.getName() +"' class");
-                                }
-                            }
+                        } catch (NoSuchFieldException e ) {
+                            log.error("Field '" + property.getName() +"' not found in '" + className.getName() +"' class");
                         }
-                        return object;
                     }
+                }
 
-                    return null;
+                /* Loop through node children */
+                NodeIterator nodeIterator = node.getNodes();
+                while(nodeIterator.hasNext()) {
+                    Node children = nodeIterator.nextNode();
+                    if(objectFieldsNames.contains(children.getName())) {
+                        try {
+                            Field f = className.getField(children.getName());
+                            Class clazz = f.getDeclaredAnnotation(Children.class).typeOf();
+                            boolean isCollection = f.getType().getName().equals(Collection.class.getName());
+                            if(f.getDeclaredAnnotation(Children.class) != null && isCollection) {
+                                Collection<Object> childrenNodeList = new ArrayList<>();
+                                NodeIterator nodeListIterator = children.getNodes();
+                                while(nodeListIterator.hasNext()) {
+                                    Node item = nodeListIterator.nextNode();
+                                    childrenNodeList.add(this.toBean(item, clazz));
+                                }
+                                /* Add children to the object */
+                                f.set(object, childrenNodeList);
+                            }
+                        } catch(NoSuchFieldException e) {
+                            log.error("Field '" + node.getName() +"' not found in '" + className.getName() +"' class");
+                        }
+                    }
+                }
+                return object;
+            }
 
-                } catch (InvocationTargetException e) { log.error(e.getMessage()); }
-            } catch (IllegalAccessException e) { log.error(e.getMessage()); }
-        } catch (InstantiationException e) { log.error("Cannot instantiate object", e.getMessage()); }
+            return null;
+
+        } catch (InstantiationException e) {
+            log.error("Cannot instantiate object", e.getMessage());
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            log.error(e.getMessage());
+        }
 
         return null;
     }
