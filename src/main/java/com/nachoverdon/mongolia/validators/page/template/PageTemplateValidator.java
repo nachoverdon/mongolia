@@ -24,7 +24,10 @@ import javax.jcr.query.Query;
  *        required: true
  *        validators:
  *          - name: url
- *            class: com.nachoverdon.mongolia.validators.PageTemplateValidatorDefinition
+ *            # Since 6.1, you can use $type instead of class
+ *            $type: pageTemplate
+ *            # Optionally, you can use the full class
+ *            # class: com.nachoverdon.mongolia.validators.PageTemplateValidatorDefinition
  *            templateName: your-module:pages/cool_template
  *            errorMessage: Wrong template, plase select a Cool Template page
  *
