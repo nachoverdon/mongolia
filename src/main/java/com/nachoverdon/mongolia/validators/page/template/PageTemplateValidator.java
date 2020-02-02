@@ -52,6 +52,7 @@ public class PageTemplateValidator extends AbstractStringValidator {
             String condition = "jcr:" + (isPath(value) ? "path" : "uuid") + " = " + QueryUtils.quoteSQL2Value(value);
 
             // Search a page with the given template and path
+            // We use SQL instead of JCR-SQL2 because the latter doesn't support query by path
             String sql = "SELECT * FROM " + NodeTypes.Page.NAME + " WHERE " + NodeTypes.Renderable.TEMPLATE + " = "
                     + QueryUtils.quoteSQL2Value(templateName) + " AND " + condition;
 
