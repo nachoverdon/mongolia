@@ -1,11 +1,13 @@
 package com.nachoverdon.mongolia.utils;
 
 import info.magnolia.cms.util.QueryUtil;
+import info.magnolia.context.MgnlContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
+import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 
 public class QueryUtils extends QueryUtil {
@@ -86,6 +88,33 @@ public class QueryUtils extends QueryUtil {
      */
     public static Node searchSingle(String workspace, String statement) {
         return searchSingle(workspace, statement, Query.JCR_SQL2);
+    }
+
+    /**
+     * Gets the count of all the nodes for a given workspace and statement
+     *
+     * @param statement The statement
+     * @param workspace The workspace where it should perform the query
+     * @return
+     */
+    public static Long getNodesCount(String statement, String workspace, String language) {
+        try {
+            return MgnlContext.getJCRSession(workspace).getWorkspace()
+                    .getQueryManager().createQuery(statement, language).execute()
+                    .getRows().getSize();
+
+        } catch (RepositoryException e) {
+            log.error("Could not retrieve total on workspace [" + workspace + "]: " + statement, e);
+        }
+
+        return 0L;
+    }
+
+    /**
+     * Refer to {@link #getNodesCount(String, String, String)}
+     */
+    public static Long getNodesCount(String statement, String workspace) {
+        return getNodesCount(statement, workspace, Query.JCR_SQL2);
     }
 
 }
