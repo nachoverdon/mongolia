@@ -24,7 +24,10 @@ import javax.jcr.query.Query;
  *        required: true
  *        validators:
  *          - name: url
- *            class: com.nachoverdon.mongolia.validators.PageTemplateValidatorDefinition
+ *            # Since 6.1, you can use $type instead of class
+ *            $type: pageTemplate
+ *            # Optionally, you can use the full class
+ *            # class: com.nachoverdon.mongolia.validators.PageTemplateValidatorDefinition
  *            templateName: your-module:pages/cool_template
  *            errorMessage: Wrong template, plase select a Cool Template page
  *
@@ -52,6 +55,7 @@ public class PageTemplateValidator extends AbstractStringValidator {
             String condition = "jcr:" + (isPath(value) ? "path" : "uuid") + " = " + QueryUtils.quoteSQL2Value(value);
 
             // Search a page with the given template and path
+            // We use SQL instead of JCR-SQL2 because the latter doesn't support query by path
             String sql = "SELECT * FROM " + NodeTypes.Page.NAME + " WHERE " + NodeTypes.Renderable.TEMPLATE + " = "
                     + QueryUtils.quoteSQL2Value(templateName) + " AND " + condition;
 

@@ -1,10 +1,12 @@
 package com.nachoverdon.mongolia.validators.page.template;
 
 import info.magnolia.ui.form.validator.definition.ConfiguredFieldValidatorDefinition;
+import info.magnolia.ui.framework.databinding.validator.ValidatorType;
 
 /**
  * @see com.nachoverdon.mongolia.validators.page.template.PageTemplateValidator
  */
+@ValidatorType("pageTemplate")
 public class PageTemplateValidatorDefinition extends ConfiguredFieldValidatorDefinition {
     private String templateName;
 
