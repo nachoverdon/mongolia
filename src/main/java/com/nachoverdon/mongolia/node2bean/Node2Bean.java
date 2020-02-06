@@ -21,13 +21,13 @@ public class Node2Bean {
 
     public Object toBean(Node node, Class className) throws RepositoryException {
         String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
+
         return toBean(node, className, currentLang);
     }
 
     public Object toBean(Node node, Class className, String lang) throws RepositoryException {
-
         // @TODO: if lang is null, empty or is not one of the available languages, get current language
-//        if (StringUtil.EmptyOrNull(lang) || !getAvailableImportLanguagesArray().contains(lang))
+        // if (StringUtil.EmptyOrNull(lang) || !getAvailableImportLanguagesArray().contains(lang))
         if (lang == null || lang.equals(StringUtils.EMPTY))
             lang = MgnlContext.getAggregationState().getLocale().getLanguage();
 
@@ -124,32 +124,29 @@ public class Node2Bean {
     }
 
     public String setSearchableFields(Class className, String queryString) {
-
         String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
-        Constructor<?> constructor = (className.getConstructors().length > 0) ? className.getConstructors()[0] : null;
+        Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(className);
         StringBuilder addedQuerySB = new StringBuilder();
 
         try {
             if (constructor != null)  {
                 Object object = constructor.newInstance();
                 List<Field> fieldList = ReflectionUtil.getAllFields(object.getClass());
-                Iterator<Field> fieldsIterator = fieldList.iterator();
 
-                while (fieldsIterator.hasNext()) {
-                    Field f = fieldsIterator.next();
-                    String fieldName = f.getName();
+                for (Field field : fieldList) {
+                    String fieldName = field.getName();
 
                     /* Check if is a translatable field */
-                    if (f.getDeclaredAnnotation(Translatable.class) != null) {
+                    if (field.getDeclaredAnnotation(Translatable.class) != null) {
                         String defaultLang = MgnlContext.isWebContext()
                                 ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
                                 : "en";
 
-                        fieldName += ( (!currentLang.equals(defaultLang)) ? "_" + currentLang : "" );
+                        fieldName += ((!currentLang.equals(defaultLang)) ? "_" + currentLang : "");
                     }
 
                     /* Prevent children to destroy the query */
-                    if (f.getDeclaredAnnotation(Children.class) == null) {
+                    if (field.getDeclaredAnnotation(Children.class) == null) {
                         addedQuerySB.append("LOWER(t.")
                             .append(fieldName)
                             .append(") LIKE '%%")
@@ -166,8 +163,8 @@ public class Node2Bean {
 
         String addedQuery = addedQuerySB.toString();
 
-        //Remove last 2 characters if they are 'OR'
-        if ( addedQuery.substring((addedQuery.length() - 3)).equals("OR ") ) {
+        // Remove last 2 characters if they are 'OR'
+        if (addedQuery.substring((addedQuery.length() - 3)).equals("OR ")) {
             addedQuery = addedQuery.substring(0, addedQuery.length() - 3);
         }
 
@@ -175,7 +172,6 @@ public class Node2Bean {
     }
 
     private Object getPropertyByType(Property property) throws RepositoryException {
-
         Value value = property.getValue();
 
         switch (value.getType()) {
