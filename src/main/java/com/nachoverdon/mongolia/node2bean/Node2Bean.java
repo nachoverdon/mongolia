@@ -19,13 +19,13 @@ public class Node2Bean {
 
     private static Logger log = LoggerFactory.getLogger(Node2Bean.class);
 
-    public Object toBean(Node node, Class className) throws RepositoryException {
+    public static Object toBean(Node node, Class className) throws RepositoryException {
         String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
 
         return toBean(node, className, currentLang);
     }
 
-    public Object toBean(Node node, Class className, String lang) throws RepositoryException {
+    public static Object toBean(Node node, Class className, String lang) throws RepositoryException {
         // @TODO: if lang is null, empty or is not one of the available languages, get current language
         // if (StringUtil.EmptyOrNull(lang) || !getAvailableImportLanguagesArray().contains(lang))
         if (lang == null || lang.equals(StringUtils.EMPTY))
@@ -97,7 +97,7 @@ public class Node2Bean {
                                 while (nodeListIterator.hasNext()) {
                                     Node item = nodeListIterator.nextNode();
 
-                                    childrenNodeList.add(this.toBean(item, clazz));
+                                    childrenNodeList.add(toBean(item, clazz));
                                 }
 
                                 /* Add children to the object */
@@ -123,7 +123,7 @@ public class Node2Bean {
         return null;
     }
 
-    public String setSearchableFields(Class className, String queryString) {
+    public static String setSearchableFields(Class className, String queryString) {
         String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
         Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(className);
         StringBuilder addedQuerySB = new StringBuilder();
@@ -171,7 +171,7 @@ public class Node2Bean {
         return addedQuery;
     }
 
-    private Object getPropertyByType(Property property) throws RepositoryException {
+    private static Object getPropertyByType(Property property) throws RepositoryException {
         Value value = property.getValue();
 
         switch (value.getType()) {
