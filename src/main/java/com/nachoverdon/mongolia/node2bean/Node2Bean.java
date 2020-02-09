@@ -2,13 +2,11 @@ package com.nachoverdon.mongolia.node2bean;
 
 import com.nachoverdon.mongolia.annotations.Children;
 import com.nachoverdon.mongolia.annotations.Translatable;
-import com.nachoverdon.mongolia.utils.ImageUtils;
 import com.nachoverdon.mongolia.utils.ReflectionUtil;
 import info.magnolia.cms.i18n.I18nContentSupportFactory;
 import info.magnolia.context.MgnlContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.jcr.*;
 import java.lang.reflect.Constructor;
@@ -16,25 +14,27 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+@Slf4j
 public class Node2Bean {
     private static final String DEFAULT_LANG = "en";
-    private static Logger log = LoggerFactory.getLogger(Node2Bean.class);
 
     /**
      * Transforms a Node into an object of the given class. Optionally, if the Node has properties annotated as
      * translatable it will get the corresponding property if a language is given.
      *
+     * @param <T> The type of the JavaBean
      * @param node The Node to get the data from.
-     * @param className The class of the JavaBean
+     * @param clazz The class of the JavaBean
      * @param lang Optional. The language to get the properties from.
      * @return An object of the given class type.
      */
-    public static <T> T toBean(Node node, Class<T> className, String lang) {
+    @SuppressWarnings("unchecked")
+    public static <T> T toBean(Node node, Class<T> clazz, String lang) {
         if (lang == null || lang.equals(StringUtils.EMPTY))
             lang = MgnlContext.getAggregationState().getLocale().getLanguage();
 
         try {
-           Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(className);
+           Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(clazz);
 
             if (constructor != null)  {
                 Object object = constructor.newInstance();
@@ -49,13 +49,13 @@ public class Node2Bean {
                     /* Check if object has that property */
                     if (objectFieldsNames.contains(property.getName())) {
                         try {
-                            Field f = className.getField(property.getName());
+                            Field field = clazz.getField(property.getName());
                             String defaultLang = MgnlContext.isWebContext()
                                     ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
                                     : DEFAULT_LANG;
 
                             /* Check i18n properties to return it correctly */
-                            if (!lang.equals(defaultLang) && f.getDeclaredAnnotation(Translatable.class) != null ) {
+                            if (!lang.equals(defaultLang) && field.getDeclaredAnnotation(Translatable.class) != null ) {
 
                                 //Fill object with lang values
                                 String propertyNameI18n = property.getName() + "_" + lang;
@@ -64,18 +64,18 @@ public class Node2Bean {
                                     Property propertyI18n = node.getProperty(propertyNameI18n);
 
                                     if (propertyI18n.getValue() != null){
-                                        f.set(object, getPropertyByType(propertyI18n));
+                                        field.set(object, getPropertyByType(propertyI18n));
                                     } else {
-                                        f.set(object, getPropertyByType(property));
+                                        field.set(object, getPropertyByType(property));
                                     }
                                 }
                             } else {
                                 //Fill object with default lang values
-                                f.set(object, getPropertyByType(property));
+                                field.set(object, getPropertyByType(property));
                             }
 
                         } catch (NoSuchFieldException e ) {
-                            log.error("Field '" + property.getName() +"' not found in '" + className.getName() +"' class");
+                            log.error("Field '" + property.getName() +"' not found in '" + clazz.getName() +"' class");
                         }
                     }
                 }
@@ -88,25 +88,25 @@ public class Node2Bean {
 
                     if (objectFieldsNames.contains(children.getName())) {
                         try {
-                            Field f = className.getField(children.getName());
-                            Class clazz = f.getDeclaredAnnotation(Children.class).typeOf();
-                            boolean isCollection = f.getType().getName().equals(Collection.class.getName());
+                            Field field = clazz.getField(children.getName());
+                            Class class_ = field.getDeclaredAnnotation(Children.class).typeOf();
+                            boolean isCollection = field.getType().getName().equals(Collection.class.getName());
 
-                            if (f.getDeclaredAnnotation(Children.class) != null && isCollection) {
+                            if (field.getDeclaredAnnotation(Children.class) != null && isCollection) {
                                 Collection<Object> childrenNodeList = new ArrayList<>();
                                 NodeIterator nodeListIterator = children.getNodes();
 
                                 while (nodeListIterator.hasNext()) {
                                     Node item = nodeListIterator.nextNode();
 
-                                    childrenNodeList.add(toBean(item, clazz, lang));
+                                    childrenNodeList.add(toBean(item, class_, lang));
                                 }
 
                                 /* Add children to the object */
-                                f.set(object, childrenNodeList);
+                                field.set(object, childrenNodeList);
                             }
                         } catch(NoSuchFieldException e) {
-                            log.error("Field '" + node.getName() +"' not found in '" + className.getName() +"' class");
+                            log.error("Field '" + node.getName() +"' not found in '" + clazz.getName() +"' class");
                         }
                     }
                 }
@@ -125,6 +125,9 @@ public class Node2Bean {
     /**
      * Refer to {@link #toBean(Node, Class, String)}
      *
+     * @param <T> The type of the JavaBean
+     * @param node The Node to get the data from.
+     * @param clazz The class of the JavaBean
      */
     public static <T> T toBean(Node node, Class<T> clazz) {
         String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
@@ -185,7 +188,7 @@ public class Node2Bean {
      * Gets a single value from a property by type
      *
      * @param property A Node's property
-     * @return
+     * @return The value
      */
     private static Object getPropertyByType(Property property) {
         try {

@@ -15,7 +15,7 @@ public class ImageUtils {
      * @param inputStream InputStream of the image
      * @param mimeType MIME type of the image https://www.sitepoint.com/mime-types-complete-list/
      * @return The image encoded to base64 or an empty string
-     * @throws IOException
+     * @throws IOException Exception when converting InputStream to byte[]
      */
     public static String imageToBase64(InputStream inputStream, String mimeType ) throws IOException {
         String base64Data = new String(

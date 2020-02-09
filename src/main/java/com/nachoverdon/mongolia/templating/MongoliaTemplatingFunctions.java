@@ -11,24 +11,20 @@ import info.magnolia.jcr.wrapper.I18nNodeWrapper;
 import info.magnolia.objectfactory.Components;
 import info.magnolia.resourceloader.ResourceOrigin;
 import info.magnolia.templating.functions.TemplatingFunctions;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.jcr.Node;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 @Singleton
+@Slf4j
 public class MongoliaTemplatingFunctions {
 
     public static final String NAME = "mongofn";
-
-    private static final Logger log = LoggerFactory.getLogger(MongoliaTemplatingFunctions.class);
 
     private I18nContentSupport i18nContentSupport;
     private TemplatingFunctions cmsfn;
@@ -46,20 +42,31 @@ public class MongoliaTemplatingFunctions {
     }
 
     /**
-     * Returns today's date formatted with the given pattern
+     * Returns today's date formatted with the given pattern.
+     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html">SimpleDataFormat</a>
      *
-     * @param pattern https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
+     * @param pattern Date pattern
+     * @return Today's date formated.
      */
     public String getTodayDate(String pattern) {
-        DateFormat dateFormat = new SimpleDateFormat(pattern);
-        Date date = new Date();
-        return dateFormat.format(date);
+        return formatDate(new Date(), pattern);
+    }
+
+    /**
+     * Returns today's date formatted as dd/MMM/yyyy.
+     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html">SimpleDataFormat</a>
+     *
+     * @return Today's date formated.
+     */
+    public String getTodayDate() {
+        return formatDate(new Date());
     }
 
     /**
      * Returns the String version of the date formatted with the given pattern
+     * @see <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html">SimpleDataFormat</a>
      *
-     * @param date
+     * @param date A Date object
      * @param pattern https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
      */
     public String formatDate(Date date, String pattern) {
@@ -72,7 +79,7 @@ public class MongoliaTemplatingFunctions {
      * @param date
      */
     public String formatDate(Date date) {
-        return formatDate(date, "dd MMM yyyy");
+        return formatDate(date, "dd/MMM/yyyy");
     }
 
     /**

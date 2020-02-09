@@ -1,17 +1,15 @@
 package com.nachoverdon.mongolia.pdf;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class WkHtmlToPdf {
-
-    private static final Logger log = LoggerFactory.getLogger(WkHtmlToPdf.class);
 
     /**
      * In order to use wkhtmltopdf, you must install it and make it accessible on your machine's path.

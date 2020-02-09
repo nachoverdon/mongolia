@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
  * This class is used to automatically detect the client's browser language when no language is specified in the URL.
  *
  * To use this class, simply add it to your configuration:
- * @TODO: 22/01/2020 Configuration documentation
+ *  TODO: 22/01/2020 Configuration documentation
  * <pre>{@code
  * }</pre>
  *
@@ -23,6 +23,12 @@ public class BrowserDetectedI18nContentSupport extends DefaultI18nContentSupport
         return uri.startsWith("/") ? "/" + locale.toString() + uri : uri;
     }
 
+    /**
+     * Determines the Locale using the URL (like http://example.com/en/) or with the Accept-Language HTTP request
+     * header.
+     *
+     * @return The determined Locale
+     */
     @Override
     protected Locale onDetermineLocale() {
         String i18nURI = MgnlContext.getAggregationState().getCurrentURI();
@@ -44,6 +50,7 @@ public class BrowserDetectedI18nContentSupport extends DefaultI18nContentSupport
      * Gets the languages accepted by the browser from the HTTP request and determines the best locale by the weight
      * assigned to the language
      *
+     * @return The determined Locale
      */
     protected Locale getLocaleFromHttpRequest() {
         HttpServletRequest request = Components.getComponent(HttpServletRequest.class);

@@ -34,7 +34,7 @@ import java.util.List;
  * {@link #getParameters}
  *      A List of wkhtmltopdf parameters. Automatically includes ["-", "-"] as last parameters, so you don't need to
  *      include them.
- * @see <a href="https://wkhtmltopdf.org/usage/wkhtmltopdf.txt">wkthmltopdf docs</a>.
+ * @see <a href="https://wkhtmltopdf.org/usage/wkhtmltopdf.txt">wkthmltopdf docs</a>
  *
  *
  * {@link #shouldDownload}
