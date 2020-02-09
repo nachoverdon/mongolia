@@ -60,7 +60,7 @@ public class PageTemplateValidator extends AbstractStringValidator {
                     + QueryUtils.quoteSQL2Value(templateName) + " AND " + condition;
 
             // If it exists then its valid
-            return QueryUtils.searchSingle(RepositoryConstants.WEBSITE, sql, Query.SQL) != null;
+            return QueryUtils.getNode(RepositoryConstants.WEBSITE, sql, Query.SQL) != null;
         } catch (Exception e) {
             return false;
         }

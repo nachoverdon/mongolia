@@ -5,6 +5,7 @@ import com.nachoverdon.mongolia.annotations.Translatable;
 import info.magnolia.cms.i18n.I18nContentSupportFactory;
 import info.magnolia.cms.util.QueryUtil;
 import info.magnolia.context.MgnlContext;
+import info.magnolia.jcr.util.NodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,8 +17,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class QueryUtils extends QueryUtil {
@@ -66,7 +69,7 @@ public class QueryUtils extends QueryUtil {
      *                   will contain only nodes that are marked by this selector.
      * @return First available Node
      */
-    public static Node searchSingle(String workspace, String statement, String language, String returnItemType, boolean isSelector) {
+    public static Node getNode(String workspace, String statement, String language, String returnItemType, boolean isSelector) {
         try {
             return NodeUtils.getAnyOrNull(search(workspace, statement, language, returnItemType, isSelector));
         } catch (Exception e) {
@@ -79,7 +82,7 @@ public class QueryUtils extends QueryUtil {
     }
 
     /**
-     * Refer to {@link #searchSingle(String, String, String, String, boolean)}
+     * Refer to {@link #getNode(String, String, String, String, boolean)}
      *
      * @param workspace The desired workspace. Ex: "website"
      * @param statement The SQL/xpath statement that will be executed
@@ -89,19 +92,19 @@ public class QueryUtils extends QueryUtil {
      *                       result is checked. Duplicate nodes are removed from result.
      * @return First available Node
      */
-    public static Node searchSingle(String workspace, String statement, String language, String returnItemType) {
-        return searchSingle(workspace, statement, language, returnItemType, false);
+    public static Node getNode(String workspace, String statement, String language, String returnItemType) {
+        return getNode(workspace, statement, language, returnItemType, false);
     }
 
     /**
-     * Refer to {@link #searchSingle(String, String, String, String, boolean)}
+     * Refer to {@link #getNode(String, String, String, String, boolean)}
      *
      * @param workspace The desired workspace. Ex: "website"
      * @param statement The SQL/xpath statement that will be executed
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
      * @return First available Node
      */
-    public static Node searchSingle(String workspace, String statement, String language) {
+    public static Node getNode(String workspace, String statement, String language) {
         try {
             return NodeUtils.getAnyOrNull(search(workspace, statement, language));
         } catch (Exception e) {
@@ -113,14 +116,113 @@ public class QueryUtils extends QueryUtil {
     }
 
     /**
-     * Refer to {@link #searchSingle(String, String, String, String, boolean)}
+     * Refer to {@link #getNode(String, String, String, String, boolean)}
      *
      * @param workspace The desired workspace. Ex: "website"
-     * @param statement The SQL/xpath statement that will be executed
+     * @param statement The JCR-SQL2 statement that will be executed
      * @return First available Node
      */
-    public static Node searchSingle(String workspace, String statement) {
-        return searchSingle(workspace, statement, Query.JCR_SQL2);
+    public static Node getNode(String workspace, String statement) {
+        return getNode(workspace, statement, Query.JCR_SQL2);
+    }
+
+    /**
+     * Gets a limited collection of nodes starting at the given offset, optionally filtered with a custom filter.
+     * Note that, if a custom filter is selected, the query will retrieve ALL nodes and then it will apply the filter
+     * and the limit.
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param limit The maximum amount of nodes to retrieve
+     * @param offset The offset of the query
+     * @param filter A custom node filter
+     * @return A collection of nodes
+     */
+    public Collection<Node> getNodesPaginated(String statement, String workspace, String language, int limit, int offset, Predicate<Node> filter) {
+        try {
+            Query query = MgnlContext.getSystemContext().getJCRSession(workspace).getWorkspace().getQueryManager()
+                    .createQuery(statement, language);
+
+            if (filter != null)
+                limit = -1;
+
+            if (limit > 0)
+                query.setLimit(limit);
+
+            if (offset > 0)
+                query.setOffset(offset);
+
+            Collection<Node> nodes = NodeUtils.getCollectionFromNodeIterator(query.execute().getNodes());
+
+            if (filter == null)
+                return nodes;
+
+            nodes.removeIf(filter);
+
+            return limitNodes(nodes, limit);
+        } catch (RepositoryException e) {
+            log.error("Could not retrieve nodes with sql on workspace [" + workspace + "]: " + statement, e);
+        }
+
+        return Collections.emptyList();
+    }
+
+    /**
+     * Gets a collection of nodes, optionally filtered with a custom filter.
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param filter A custom node filter
+     * @return A collection of nodes
+     */
+    public Collection<Node> getNodes(String statement, String workspace, String language, Predicate<Node> filter) {
+        try {
+            Collection<Node> nodes = NodeUtil.getCollectionFromNodeIterator(search(workspace, statement, language));
+
+            if (filter != null)
+                nodes.removeIf(filter);
+
+            return nodes;
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Refer to {@link #getNodes(String, String, String, Predicate)}
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @return A collection of nodes
+     */
+    public Collection<Node> getNodes(String statement, String workspace, String language) {
+        return getNodes(statement, workspace, language, null);
+    }
+
+    /**
+     * Refer to {@link #getNodes(String, String, String, Predicate)}
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @param filter A custom node filter
+     * @return A collection of nodes
+     */
+    public Collection<Node> getNodes(String statement, String workspace, Predicate<Node> filter) {
+        return getNodes(statement, workspace, Query.JCR_SQL2, filter);
+    }
+
+    /**
+     * Refer to {@link #getNodes(String, String, String, Predicate)}
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @return A collection of nodes
+     */
+    public Collection<Node> getNodes(String statement, String workspace) {
+        return getNodes(statement, workspace, Query.JCR_SQL2);
     }
 
     /**
@@ -254,5 +356,19 @@ public class QueryUtils extends QueryUtil {
         }
 
         return addedQuerySB.toString();
+    }
+
+    /**
+     * Filters a collection of nodes to limit the amount
+     *
+     * @param nodes The collection of nodes to limit
+     * @param limit The maximum amount of nodes that the collection will have
+     * @return A collection of nodes limited or empty.
+     */
+    public static Collection<Node> limitNodes(Collection<Node> nodes, int limit) {
+        if (nodes == null)
+            return Collections.emptyList();
+
+        return nodes.stream().limit(limit).collect(Collectors.toList());
     }
 }
