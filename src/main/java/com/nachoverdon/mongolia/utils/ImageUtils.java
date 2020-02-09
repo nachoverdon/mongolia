@@ -17,7 +17,7 @@ public class ImageUtils {
      * @return The image encoded to base64 or an empty string
      * @throws IOException Exception when converting InputStream to byte[]
      */
-    public static String imageToBase64(InputStream inputStream, String mimeType ) throws IOException {
+    public static String imageToBase64(InputStream inputStream, String mimeType) throws IOException {
         String base64Data = new String(
                 Base64.encodeBase64(IOUtils.toByteArray(inputStream)),
                 StandardCharsets.UTF_8.name()

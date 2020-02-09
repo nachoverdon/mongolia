@@ -203,13 +203,13 @@ public class QueryUtils extends QueryUtil {
      */
     public static String setSearchableFields(Class clazz, String searchTerm, String as) {
         String currentLang = LangUtils.getLanguage();
-        Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(clazz);
+        Constructor<?> constructor = ReflectionUtils.getEmptyConstructor(clazz);
         StringBuilder addedQuerySB = new StringBuilder();
 
         try {
             if (constructor != null)  {
                 Object object = constructor.newInstance();
-                List<Field> fieldList = ReflectionUtil.getAllFields(object.getClass());
+                List<Field> fieldList = ReflectionUtils.getAllPublicAndProtectedFields(object.getClass());
                 int i = 0;
 
                 for (Field field : fieldList) {

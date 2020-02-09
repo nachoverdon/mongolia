@@ -6,13 +6,19 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ReflectionUtil {
+public class ReflectionUtils {
 
-    public static List<Field> getAllFields(Class clazz) {
+    /**
+     * Gets all the public and protected fields from the given class
+     *
+     * @param clazz The class to read fields from
+     * @return A list for Fields
+     */
+    public static List<Field> getAllPublicAndProtectedFields(Class clazz) {
         if (clazz == null)
             return Collections.emptyList();
 
-        List<Field> result = new ArrayList<>(getAllFields(clazz.getSuperclass()));
+        List<Field> result = new ArrayList<>(getAllPublicAndProtectedFields(clazz.getSuperclass()));
         List<Field> filteredFields = Arrays.stream(clazz.getDeclaredFields())
                 .filter(f -> Modifier.isPublic(f.getModifiers()) || Modifier.isProtected(f.getModifiers()))
                 .collect(Collectors.toList());
@@ -22,6 +28,12 @@ public class ReflectionUtil {
         return result;
     }
 
+    /**
+     * Gets a constructor that takes no parameters from the given class
+     *
+     * @param clazz The class to get the constructor from
+     * @return The empty constructor or null
+     */
     public static Constructor getEmptyConstructor(Class clazz) {
 
         for (Constructor ctr: clazz.getConstructors()) {
@@ -32,9 +44,15 @@ public class ReflectionUtil {
         return null;
     }
 
+    /**
+     * Gets a list of all the public and protected field names of a given object
+     *
+     * @param object The object to get the field names from
+     * @return A list of field names
+     */
     public static Collection<String> getFieldsNames(Object object) {
         Collection<String> fieldNames = new ArrayList<>();
-        List<Field> objectFields = getAllFields(object.getClass());
+        List<Field> objectFields = getAllPublicAndProtectedFields(object.getClass());
 
         for(Field f: objectFields) {
             fieldNames.add(f.getName());
