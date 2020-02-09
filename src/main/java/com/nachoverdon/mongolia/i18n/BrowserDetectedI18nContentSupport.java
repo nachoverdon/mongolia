@@ -38,7 +38,8 @@ public class BrowserDetectedI18nContentSupport extends DefaultI18nContentSupport
         if (localeStr.length() == 2) {
             locale = determineLocalFromString(localeStr);
 
-            if (getLocales().contains(locale)) return locale;
+            if (getLocales().contains(locale))
+                return locale;
         }
 
         locale = getLocaleFromHttpRequest();
@@ -67,9 +68,9 @@ public class BrowserDetectedI18nContentSupport extends DefaultI18nContentSupport
             double weight = range.getWeight();
 
             // Use only language, not the country
-            if (lang.length() > 2) {
+            if (lang.length() > 2)
                 lang = lang.substring(0, 2);
-            }
+
 
             // If the key doesn't exist or if the weight is heavier, assign the weight to the lang
             if (weight > lastWeight) {

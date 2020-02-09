@@ -25,8 +25,8 @@ public class WkHtmlToPdf {
      * Similarly, CSS must also be embedded using style tags instead of linked.
      * wkhtmltopdf uses Qt 4.8.* (Qt WebKit) rendering engine internally to render the page. Some CSS3 features, like
      * flexbox, are NOT supported by default. You might need to use older syntax. More info:
-     * @see <a href="https://github.com/wkhtmltopdf/wkhtmltopdf/issues/1522#issuecomment-159767618">Github issue</a>
-     * @see <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/box-align">MDN Docs on box-align</a>
+     * * <a href="https://github.com/wkhtmltopdf/wkhtmltopdf/issues/1522#issuecomment-159767618">Github issue</a>
+     * * <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/box-align">MDN Docs on box-align</a>
      *
      * Headers/Footers:
      * These should be .html files and must be accessible from the webapp module, so put them on your resources folder.
@@ -38,7 +38,7 @@ public class WkHtmlToPdf {
      *
      * Note:
      * If you have the time, checkout Puppeteer, which might be a better alternative to wkhtmltopdf.
-     * @see <a href="https://pptr.dev">Puppeteer</a>
+     * <a href="https://pptr.dev">Puppeteer</a>
      *
      * @param html The HTML you want to convert to PDF
      * @param parameters A list of wkhtmltopdf parameters. ex: Arrays.asList("--header-html", "my/path/header.html");
@@ -75,13 +75,11 @@ public class WkHtmlToPdf {
             log.debug("Process exited with code: " + status);
 
             return inputStream;
-
         } catch (IOException | InterruptedException e) {
-
             log.error(e.getMessage());
-
         } finally {
-            if (process != null) process.destroy();
+            if (process != null)
+                process.destroy();
         }
 
         return null;

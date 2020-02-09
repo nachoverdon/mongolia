@@ -9,9 +9,8 @@ import java.util.stream.Collectors;
 public class ReflectionUtil {
 
     public static List<Field> getAllFields(Class clazz) {
-        if (clazz == null) {
+        if (clazz == null)
             return Collections.emptyList();
-        }
 
         List<Field> result = new ArrayList<>(getAllFields(clazz.getSuperclass()));
         List<Field> filteredFields = Arrays.stream(clazz.getDeclaredFields())

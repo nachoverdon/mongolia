@@ -68,6 +68,7 @@ public class MongoliaTemplatingFunctions {
      *
      * @param date A Date object
      * @param pattern https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
+     * @return The date formatted.
      */
     public String formatDate(Date date, String pattern) {
         return DateUtil.format(date, pattern);
@@ -76,7 +77,8 @@ public class MongoliaTemplatingFunctions {
     /**
      * See {@link #formatDate(Date, String)}
      *
-     * @param date
+     * @param date A Date object
+     * @return The date formatted.
      */
     public String formatDate(Date date) {
         return formatDate(date, "dd/MMM/yyyy");
@@ -85,6 +87,7 @@ public class MongoliaTemplatingFunctions {
     /**
      * Gets the current locale
      *
+     * @return The current Locale
      */
     public Locale getLocale() {
         return i18nContentSupport.getLocale();
@@ -93,6 +96,7 @@ public class MongoliaTemplatingFunctions {
     /**
      * Gets the current lenguage
      *
+     * @return The language from the current Locale
      */
     public String getLanguage() {
         return getLocale().getLanguage();
@@ -102,19 +106,18 @@ public class MongoliaTemplatingFunctions {
      * Gets the URL of the current page.
      *
      * @param withQueryString Optionally gets the query string.
+     * @return The current URL
      */
     public String currentUrl(boolean withQueryString) {
-        String url;
-
-        if (withQueryString) url = MgnlContext.getAggregationState().getOriginalBrowserURL();
-        else url = MgnlContext.getContextPath() + MgnlContext.getAggregationState().getOriginalBrowserURI();
-
-        return url;
+        return withQueryString
+            ? MgnlContext.getAggregationState().getOriginalBrowserURL()
+            : MgnlContext.getContextPath() + MgnlContext.getAggregationState().getOriginalBrowserURI();
     }
 
     /**
      * See {@link #currentUrl(boolean)}
      *
+     * @return The current URL
      */
     public String currentUrl() {
         return currentUrl(true);
@@ -126,6 +129,7 @@ public class MongoliaTemplatingFunctions {
      * Checks if the Node has already been wrapped before doing so.
      *
      * @param node A Node with translatable fields
+     * @return The translated Node
      */
     public Node wrapForI18n(Node node) {
         return NodeUtil.isWrappedWith(node, I18nNodeWrapper.class) ? node : cmsfn.wrapForI18n(node);

@@ -128,6 +128,7 @@ public class Node2Bean {
      * @param <T> The type of the JavaBean
      * @param node The Node to get the data from.
      * @param clazz The class of the JavaBean
+     * @return An object of the given class type.
      */
     public static <T> T toBean(Node node, Class<T> clazz) {
         String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
@@ -177,9 +178,9 @@ public class Node2Bean {
         String addedQuery = addedQuerySB.toString();
 
         // Remove last 2 characters if they are 'OR'
-        if (addedQuery.substring((addedQuery.length() - 3)).equals("OR ")) {
+        if (addedQuery.substring((addedQuery.length() - 3)).equals("OR "))
             addedQuery = addedQuery.substring(0, addedQuery.length() - 3);
-        }
+
 
         return addedQuery;
     }

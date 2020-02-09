@@ -29,12 +29,11 @@ import java.util.List;
  * There are 4 methods that you might want to override.
  * {@link #checkCondition}
  *      Checks whether it should proceed with the PDF conversion. Override this class to check if the
- *      current page is should be converted, for exemple, by checking the node page's template.
+ *      current page is should be converted, for example, by checking the node page's template.
  *
  * {@link #getParameters}
  *      A List of wkhtmltopdf parameters. Automatically includes ["-", "-"] as last parameters, so you don't need to
- *      include them.
- * @see <a href="https://wkhtmltopdf.org/usage/wkhtmltopdf.txt">wkthmltopdf docs</a>
+ *      include them. <a href="https://wkhtmltopdf.org/usage/wkhtmltopdf.txt">wkthmltopdf docs</a>
  *
  *
  * {@link #shouldDownload}
@@ -49,7 +48,7 @@ import java.util.List;
  *      Will be triggered when {@link #shouldDownload} returns true. By default it serves the PDF file.
  *
  * {@link #action}
- *      Will be triggered when shouldDownload returns false. Does nothing unless overriden.
+ *      Will be triggered when shouldDownload returns false. Does nothing unless overridden.
  *
  */
 public class BasePdfFilter extends OncePerRequestAbstractMgnlFilter {
