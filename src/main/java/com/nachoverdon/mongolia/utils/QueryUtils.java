@@ -1,14 +1,22 @@
 package com.nachoverdon.mongolia.utils;
 
+import com.nachoverdon.mongolia.annotations.Children;
+import com.nachoverdon.mongolia.annotations.Translatable;
+import info.magnolia.cms.i18n.I18nContentSupportFactory;
 import info.magnolia.cms.util.QueryUtil;
 import info.magnolia.context.MgnlContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Predicate;
 
 @Slf4j
@@ -180,4 +188,68 @@ public class QueryUtils extends QueryUtil {
         return getNodesCount(statement, workspace, Query.JCR_SQL2);
     }
 
+    /**
+     * Create a JCR-SQL2 query condition to search on fields.
+     * It will produce something like:
+     *      <pre>
+     *          {@code
+     *          setSearchableFields(Book.class, "Cinderella", "book");
+     *          // => " LOWER(book.title_en) LIKE '%%cinderella%%' OR LOWER(book.title_es) LIKE '%%cinderella%%' "
+     *          }
+     *      </pre>
+     *
+     * @param clazz The class of the JavaBean to build the query for
+     * @param searchTerm The search term
+     * @param as The variable name of the node
+     * @return The condition of the query
+     */
+    public static String setSearchableFields(Class clazz, String searchTerm, String as) {
+        String currentLang = LangUtils.getLanguage();
+        Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(clazz);
+        StringBuilder addedQuerySB = new StringBuilder();
+
+        try {
+            if (constructor != null)  {
+                Object object = constructor.newInstance();
+                List<Field> fieldList = ReflectionUtil.getAllFields(object.getClass());
+                int i = 0;
+
+                for (Field field : fieldList) {
+                    String fieldName = field.getName();
+
+                    // Check if is a translatable field
+                    if (field.getDeclaredAnnotation(Translatable.class) != null) {
+                        String defaultLang = MgnlContext.isWebContext()
+                                ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
+                                : LangUtils.DEFAULT_LANG;
+
+                        fieldName += !currentLang.equals(defaultLang) ? "_" + currentLang : "";
+                    }
+
+                    // Prevent children to destroy the query
+                    if (field.getDeclaredAnnotation(Children.class) == null) {
+                        addedQuerySB.append(" LOWER(")
+                                .append(as)
+                                .append(".")
+                                .append(fieldName)
+                                .append(") LIKE '%%")
+                                .append(StringUtils.replace(searchTerm.toLowerCase(), "'", "''"))
+                                .append("%%' ");
+
+                        // Append 'OR' unless it's the last element
+                        if (i != fieldList.size() - 1)
+                            addedQuerySB.append(" OR ");
+                    }
+
+                    i++;
+                }
+            }
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            log.error(e.getMessage(), e);
+        } catch (InstantiationException e) {
+            log.error("Cannot instantiate object", e);
+        }
+
+        return addedQuerySB.toString();
+    }
 }
