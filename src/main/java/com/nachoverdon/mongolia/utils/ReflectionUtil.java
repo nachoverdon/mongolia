@@ -17,25 +17,23 @@ public class ReflectionUtil {
         List<Field> filteredFields = Arrays.stream(clazz.getDeclaredFields())
                 .filter(f -> Modifier.isPublic(f.getModifiers()) || Modifier.isProtected(f.getModifiers()))
                 .collect(Collectors.toList());
+
         result.addAll(filteredFields);
+
         return result;
     }
 
     public static Constructor getEmptyConstructor(Class clazz) {
-        Constructor constructor = null;
+
         for (Constructor ctr: clazz.getConstructors()) {
-            if (ctr.getParameterCount() == 0) {
-                constructor = ctr;
-                break;
-            }
+            if (ctr.getParameterCount() == 0)
+                return ctr;
         }
 
-        return constructor;
+        return null;
     }
 
-
     public static Collection<String> getFieldsNames(Object object) {
-
         Collection<String> fieldNames = new ArrayList<>();
         List<Field> objectFields = getAllFields(object.getClass());
 

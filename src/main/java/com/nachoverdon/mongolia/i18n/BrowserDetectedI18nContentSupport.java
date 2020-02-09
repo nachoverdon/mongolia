@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
  * This class is used to automatically detect the client's browser language when no language is specified in the URL.
  *
  * To use this class, simply add it to your configuration:
- * TODO: 22/01/2020 Configuration documentation
+ * @TODO: 22/01/2020 Configuration documentation
  * <pre>{@code
  * }</pre>
  *

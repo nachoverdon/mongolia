@@ -14,6 +14,7 @@ public class WkHtmlToPdf {
     private static final Logger log = LoggerFactory.getLogger(WkHtmlToPdf.class);
 
     /**
+     * In order to use wkhtmltopdf, you must install it and make it accessible on your machine's path.
      * You can find documentation on wkhtmltopdf on https://wkhtmltopdf.org/docs.html
      *
      * Images:
@@ -77,11 +78,7 @@ public class WkHtmlToPdf {
 
             return inputStream;
 
-        } catch (IOException e) {
-
-            log.error(e.getMessage());
-
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
 
             log.error(e.getMessage());
 

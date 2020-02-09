@@ -2,6 +2,7 @@ package com.nachoverdon.mongolia.node2bean;
 
 import com.nachoverdon.mongolia.annotations.Children;
 import com.nachoverdon.mongolia.annotations.Translatable;
+import com.nachoverdon.mongolia.utils.ImageUtils;
 import com.nachoverdon.mongolia.utils.ReflectionUtil;
 import info.magnolia.cms.i18n.I18nContentSupportFactory;
 import info.magnolia.context.MgnlContext;
@@ -16,18 +17,19 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class Node2Bean {
-
+    private static final String DEFAULT_LANG = "en";
     private static Logger log = LoggerFactory.getLogger(Node2Bean.class);
 
-    public static Object toBean(Node node, Class className) throws RepositoryException {
-        String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
-
-        return toBean(node, className, currentLang);
-    }
-
-    public static Object toBean(Node node, Class className, String lang) throws RepositoryException {
-        // @TODO: if lang is null, empty or is not one of the available languages, get current language
-        // if (StringUtil.EmptyOrNull(lang) || !getAvailableImportLanguagesArray().contains(lang))
+    /**
+     * Transforms a Node into an object of the given class. Optionally, if the Node has properties annotated as
+     * translatable it will get the corresponding property if a language is given.
+     *
+     * @param node The Node to get the data from.
+     * @param className The class of the JavaBean
+     * @param lang Optional. The language to get the properties from.
+     * @return An object of the given class type.
+     */
+    public static <T> T toBean(Node node, Class<T> className, String lang) {
         if (lang == null || lang.equals(StringUtils.EMPTY))
             lang = MgnlContext.getAggregationState().getLocale().getLanguage();
 
@@ -50,7 +52,7 @@ public class Node2Bean {
                             Field f = className.getField(property.getName());
                             String defaultLang = MgnlContext.isWebContext()
                                     ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
-                                    : "en";
+                                    : DEFAULT_LANG;
 
                             /* Check i18n properties to return it correctly */
                             if (!lang.equals(defaultLang) && f.getDeclaredAnnotation(Translatable.class) != null ) {
@@ -97,7 +99,7 @@ public class Node2Bean {
                                 while (nodeListIterator.hasNext()) {
                                     Node item = nodeListIterator.nextNode();
 
-                                    childrenNodeList.add(toBean(item, clazz));
+                                    childrenNodeList.add(toBean(item, clazz, lang));
                                 }
 
                                 /* Add children to the object */
@@ -109,20 +111,28 @@ public class Node2Bean {
                     }
                 }
 
-                return object;
+                return (T) object;
             }
-
-            return null;
-
         } catch (InstantiationException e) {
             log.error("Cannot instantiate object", e.getMessage());
-        } catch (InvocationTargetException | IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalAccessException | RepositoryException e) {
             log.error(e.getMessage());
         }
 
         return null;
     }
 
+    /**
+     * Refer to {@link #toBean(Node, Class, String)}
+     *
+     */
+    public static <T> T toBean(Node node, Class<T> clazz) {
+        String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
+
+        return toBean(node, clazz, currentLang);
+    }
+
+    // @TODO: Add documentation
     public static String setSearchableFields(Class className, String queryString) {
         String currentLang = MgnlContext.getAggregationState().getLocale().getLanguage();
         Constructor<?> constructor = ReflectionUtil.getEmptyConstructor(className);
@@ -171,20 +181,30 @@ public class Node2Bean {
         return addedQuery;
     }
 
-    private static Object getPropertyByType(Property property) throws RepositoryException {
-        Value value = property.getValue();
+    /**
+     * Gets a single value from a property by type
+     *
+     * @param property A Node's property
+     * @return
+     */
+    private static Object getPropertyByType(Property property) {
+        try {
+            Value value = property.getValue();
 
-        switch (value.getType()) {
-            case PropertyType.STRING:
-                return value.getString();
-            case PropertyType.LONG:
-                return (int) value.getLong();
-            case PropertyType.DATE:
-                return Date.from(value.getDate().toInstant());
-            case PropertyType.BOOLEAN:
-                return value.getBoolean();
-            default:
-                return null;
+            switch (value.getType()) {
+                case PropertyType.STRING:
+                    return value.getString();
+                case PropertyType.LONG:
+                    return (int) value.getLong();
+                case PropertyType.DATE:
+                    return Date.from(value.getDate().toInstant());
+                case PropertyType.BOOLEAN:
+                    return value.getBoolean();
+            }
+        } catch (RepositoryException e) {
+            log.error(e.getMessage(), e);
         }
+
+        return null;
     }
 }
