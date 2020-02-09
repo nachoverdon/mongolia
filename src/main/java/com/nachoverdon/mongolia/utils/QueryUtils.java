@@ -191,12 +191,10 @@ public class QueryUtils extends QueryUtil {
     /**
      * Create a JCR-SQL2 query condition to search on fields.
      * It will produce something like:
-     *      <pre>
-     *          {@code
-     *          setSearchableFields(Book.class, "Cinderella", "book");
-     *          // => " LOWER(book.title_en) LIKE '%%cinderella%%' OR LOWER(book.title_es) LIKE '%%cinderella%%' "
-     *          }
-     *      </pre>
+     * <pre>{@code
+     *     setSearchableFields(Book.class, "Cinderella", "book");
+     *     // => " LOWER(book.title_en) LIKE '%%cinderella%%' OR LOWER(book.title_es) LIKE '%%cinderella%%' "
+     * }</pre>
      *
      * @param clazz The class of the JavaBean to build the query for
      * @param searchTerm The search term
