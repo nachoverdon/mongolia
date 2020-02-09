@@ -59,8 +59,11 @@ public class QueryUtils extends QueryUtil {
      * @param workspace The desired workspace. Ex: "website"
      * @param statement The SQL/xpath statement that will be executed
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
-     * @param returnItemType TODO
-     * @param isSelector TODO
+     * @param returnItemType Searches for statement and then pops-up in the node hierarchy until returnItemType is
+     *                       found. If the result is not returnItemType or none of its parents are then next node in
+     *                       result is checked. Duplicate nodes are removed from result.
+     * @param isSelector If isSelector is set to true then returnItemType will be used as the selector and result
+     *                   will contain only nodes that are marked by this selector.
      * @return First available Node
      */
     public static Node searchSingle(String workspace, String statement, String language, String returnItemType, boolean isSelector) {
@@ -81,7 +84,9 @@ public class QueryUtils extends QueryUtil {
      * @param workspace The desired workspace. Ex: "website"
      * @param statement The SQL/xpath statement that will be executed
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
-     * @param returnItemType TODO
+     * @param returnItemType Searches for statement and then pops-up in the node hierarchy until returnItemType is
+     *                       found. If the result is not returnItemType or none of its parents are then next node in
+     *                       result is checked. Duplicate nodes are removed from result.
      * @return First available Node
      */
     public static Node searchSingle(String workspace, String statement, String language, String returnItemType) {
