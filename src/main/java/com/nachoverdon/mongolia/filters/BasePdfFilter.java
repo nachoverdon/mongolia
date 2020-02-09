@@ -1,7 +1,6 @@
 package com.nachoverdon.mongolia.filters;
 
 import com.nachoverdon.mongolia.pdf.WkHtmlToPdf;
-import info.magnolia.cms.filters.OncePerRequestAbstractMgnlFilter;
 import org.apache.commons.io.IOUtils;
 
 import javax.servlet.FilterChain;
@@ -26,22 +25,20 @@ import java.util.List;
  *            enabled: true
  * }</pre>
  *
- * There are 4 methods that you might want to override.
+ * There is 1 method that you MUST override and and a few others that you might want to override.
  * {@link #checkCondition}
- *      Checks whether it should proceed with the PDF conversion. Override this class to check if the
+ *      Must be overridden. Checks whether it should proceed with the PDF conversion. Override this class to check if the
  *      current page is should be converted, for example, by checking the node page's template.
  *
  * {@link #getParameters}
  *      A List of wkhtmltopdf parameters. Automatically includes ["-", "-"] as last parameters, so you don't need to
  *      include them. <a href="https://wkhtmltopdf.org/usage/wkhtmltopdf.txt">wkthmltopdf docs</a>
  *
- *
  * {@link #shouldDownload}
  *      Whether the file should be served or you want to do something else with it, like store it as a Resource Node.
  *
  * {@link #getFileName}
  *      The name of the served file.
- *
  *
  * Optionally, you can also override {@link #download} and {@link #action}
  * {@link #download}
@@ -51,7 +48,7 @@ import java.util.List;
  *      Will be triggered when shouldDownload returns false. Does nothing unless overridden.
  *
  */
-public class BasePdfFilter extends OncePerRequestAbstractMgnlFilter {
+abstract public class BasePdfFilter extends BaseFilter {
     protected FilterParameters filterParameters = null;
 
     @Override
@@ -76,9 +73,8 @@ public class BasePdfFilter extends OncePerRequestAbstractMgnlFilter {
                 filterParameters = null;
             }
         } else {
-            chain.doFilter(request, response);
             filterParameters = null;
-            return;
+            chain.doFilter(request, response);
         }
     }
 
@@ -87,9 +83,13 @@ public class BasePdfFilter extends OncePerRequestAbstractMgnlFilter {
      *
      * @return true if it should be processed.
      */
-    protected boolean checkCondition() {
-        return true;
-    }
+    abstract protected boolean checkCondition();
+
+    /**
+     * Action to be performed when the PDF is not set to be downloaded.
+     *
+     */
+    protected void action() {}
 
     /**
      * Gets a list of wkhtmltopdf parameters.
@@ -134,11 +134,5 @@ public class BasePdfFilter extends OncePerRequestAbstractMgnlFilter {
         filterParameters.getResponse().setHeader("Content-Disposition", "attachment; filename=" + fileName
                 + ".pdf");
     }
-
-    /**
-     * Action to be performed when the PDF is not set to be downloaded.
-     *
-     */
-    protected void action() {}
 
 }
