@@ -40,11 +40,7 @@ mvn install:install-file -Dfile=mongolia-1.0-SNAPSHOT.jar -DgroupId=com.nachover
             </component>
         </components>
         ```
-     1. Add it to `freemarker_implicit.ftl`:
-         ```
-         [#-- @ftlvariable name="mongofn" type="com.nachoverdon.mongolia.templating.MongoliaTemplatingFunctions" --]
-         ```
-     1. Add it to your config:
+    1. Add it to your config:
         ```
             modules:
                 rendering:
@@ -54,6 +50,10 @@ mvn install:install-file -Dfile=mongolia-1.0-SNAPSHOT.jar -DgroupId=com.nachover
                                 mongofn:
                                     componentClass: com.nachoverdon.mongolia.templating.MongoliaTemplatingFunctions
                                     name: mongofn
+        ```
+    1. Add it to `freemarker_implicit.ftl`:
+        ```
+        [#-- @ftlvariable name="mongofn" type="com.nachoverdon.mongolia.templating.MongoliaTemplatingFunctions" --]
         ```
 
 ### Generating JavaDoc
