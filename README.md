@@ -70,7 +70,16 @@ It will generate `target/site/apidocs/`. To navigate the docs, just open `index.
 
 - [ ] Tests
 - [ ] Allow accents on JCR queries.
-- [ ] 
+- [ ] Pagination utilities
+- [ ] Menu app
+- [ ] Freemarker utilities
+- [ ] YAMLs to include on dialogs
+- [ ] Servlets utilities
+- [ ] i18n app (messages.properties, export to/from csv, etc...)
+- [ ] VirtualUri utilities
+- [ ] Groovy scripts
+- [ ] Email utilities
+
 
 
 ### Contributors
