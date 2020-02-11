@@ -139,7 +139,7 @@ public class QueryUtils extends QueryUtil {
      * @param filter A custom node filter
      * @return A collection of nodes
      */
-    public Collection<Node> getNodesPaginated(String statement, String workspace, String language, int limit, int offset, Predicate<Node> filter) {
+    public static Collection<Node> getNodesPaginated(String statement, String workspace, String language, int limit, int offset, Predicate<Node> filter) {
         try {
             Query query = MgnlContext.getSystemContext().getJCRSession(workspace).getWorkspace().getQueryManager()
                     .createQuery(statement, language);
@@ -177,7 +177,7 @@ public class QueryUtils extends QueryUtil {
      * @param filter A custom node filter
      * @return A collection of nodes
      */
-    public Collection<Node> getNodes(String statement, String workspace, String language, Predicate<Node> filter) {
+    public static Collection<Node> getNodes(String statement, String workspace, String language, Predicate<Node> filter) {
         try {
             Collection<Node> nodes = NodeUtil.getCollectionFromNodeIterator(search(workspace, statement, language));
 
@@ -198,7 +198,7 @@ public class QueryUtils extends QueryUtil {
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
      * @return A collection of nodes
      */
-    public Collection<Node> getNodes(String statement, String workspace, String language) {
+    public static Collection<Node> getNodes(String statement, String workspace, String language) {
         return getNodes(statement, workspace, language, null);
     }
 
@@ -210,7 +210,7 @@ public class QueryUtils extends QueryUtil {
      * @param filter A custom node filter
      * @return A collection of nodes
      */
-    public Collection<Node> getNodes(String statement, String workspace, Predicate<Node> filter) {
+    public static Collection<Node> getNodes(String statement, String workspace, Predicate<Node> filter) {
         return getNodes(statement, workspace, Query.JCR_SQL2, filter);
     }
 
@@ -221,7 +221,7 @@ public class QueryUtils extends QueryUtil {
      * @param workspace The desired workspace. Ex: "website"
      * @return A collection of nodes
      */
-    public Collection<Node> getNodes(String statement, String workspace) {
+    public static Collection<Node> getNodes(String statement, String workspace) {
         return getNodes(statement, workspace, Query.JCR_SQL2);
     }
 
