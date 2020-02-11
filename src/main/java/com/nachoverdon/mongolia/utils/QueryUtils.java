@@ -58,15 +58,14 @@ public class QueryUtils extends QueryUtil {
     /**
      * Builds a query for the given statement, workspace and language, setting the limit and the offset of the query.
      *
-     * TODO: Add Javadocs
      *
-     * @param statement
-     * @param workspace
-     * @param language
-     * @param limit
-     * @param offset
-     * @return
-     * @throws RepositoryException
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param limit The maximum amount of nodes to retrieve
+     * @param offset The offset of the query
+     * @return a Query with the given parameters
+     * @throws RepositoryException If the Query cannot be created
      */
     public static Query getQuery(String statement, String workspace, String language, long limit, long offset) throws RepositoryException {
         Query query = MgnlContext.getSystemContext().getJCRSession(workspace).getWorkspace().getQueryManager()
@@ -81,12 +80,29 @@ public class QueryUtils extends QueryUtil {
         return query;
     }
 
-    // @TODO: Add Javadocs
+    /**
+     * Refer to {@link #getQuery(String, String, String, long, long)}
+     *
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @return a Query with the given parameters
+     * @throws RepositoryException If the Query cannot be created
+     */
     public static Query getQuery(String statement, String workspace, String language) throws RepositoryException {
         return getQuery(statement, workspace, language, -1, 0);
     }
 
-    // @TODO: Add Javadocs
+    /**
+     * Builds a query for the given statement, workspace and language, setting the limit and the offset of the query.
+     *
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @return a Query with the given parameters
+     * @throws RepositoryException If the Query cannot be created
+     */
     public static Query getQuery(String statement, String workspace) throws RepositoryException {
         return getQuery(statement, workspace, Query.JCR_SQL2);
     }
@@ -95,8 +111,8 @@ public class QueryUtils extends QueryUtil {
      * Performs a query and retrieves the first available Node. It basically uses
      * {@link #search(String, String, String, String, boolean)} in combination with {@link NodeUtils#getAnyOrNull(NodeIterator)}
      *
-     * @param workspace The desired workspace. Ex: "website"
      * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
      * @param returnItemType Searches for statement and then pops-up in the node hierarchy until returnItemType is
      *                       found. If the result is not returnItemType or none of its parents are then next node in
@@ -105,7 +121,7 @@ public class QueryUtils extends QueryUtil {
      *                   will contain only nodes that are marked by this selector.
      * @return First available Node
      */
-    public static Node getNode(String workspace, String statement, String language, String returnItemType, boolean isSelector) {
+    public static Node getNode(String statement, String workspace, String language, String returnItemType, boolean isSelector) {
         try {
             return NodeUtils.getAnyOrNull(search(workspace, statement, language, returnItemType, isSelector));
         } catch (Exception e) {
@@ -120,16 +136,16 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #getNode(String, String, String, String, boolean)}
      *
-     * @param workspace The desired workspace. Ex: "website"
      * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
      * @param returnItemType Searches for statement and then pops-up in the node hierarchy until returnItemType is
      *                       found. If the result is not returnItemType or none of its parents are then next node in
      *                       result is checked. Duplicate nodes are removed from result.
      * @return First available Node
      */
-    public static Node getNode(String workspace, String statement, String language, String returnItemType) {
-        return getNode(workspace, statement, language, returnItemType, false);
+    public static Node getNode(String statement, String workspace, String language, String returnItemType) {
+        return getNode(statement, workspace, language, returnItemType, false);
     }
 
     /**
@@ -159,7 +175,7 @@ public class QueryUtils extends QueryUtil {
      * @return First available Node
      */
     public static Node getNode(String statement, String workspace) {
-        return getNode(workspace, statement, Query.JCR_SQL2);
+        return getNode(statement, workspace, Query.JCR_SQL2);
     }
 
     /**
@@ -262,7 +278,7 @@ public class QueryUtils extends QueryUtil {
      * You can optionally pass it a filter to remove nodes that meet a certain condition. It takes a Predicate, so it
      * works the same way as a Collection.removeIf.
      *
-     * @param statement The statement
+     * @param statement The SQL/xpath statement that will be executed
      * @param workspace The workspace where it should perform the query
      * @param language The query language to use
      * @param filter An optional custom filter to remove Nodes.
@@ -290,7 +306,7 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #getNodesCount(String, String, String, Predicate)}
      *
-     * @param statement The statement
+     * @param statement The SQL/xpath statement that will be executed
      * @param workspace The workspace where it should perform the query
      * @param language The query language to use
      * @return The count
@@ -303,7 +319,7 @@ public class QueryUtils extends QueryUtil {
      * Refer to {@link #getNodesCount(String, String, String, Predicate)}
      * Uses JCR-SQL2 as default query language.
      *
-     * @param statement The statement
+     * @param statement The SQL/xpath statement that will be executed
      * @param workspace The workspace where it should perform the query
      * @param filter An optional custom filter to remove Nodes.
      * @return The count
@@ -316,7 +332,7 @@ public class QueryUtils extends QueryUtil {
      * Refer to {@link #getNodesCount(String, String, String, Predicate)}
      * Uses JCR-SQL2 as default query language.
      *
-     * @param statement The statement
+     * @param statement The SQL/xpath statement that will be executed
      * @param workspace The workspace where it should perform the query
      * @return The count
      */

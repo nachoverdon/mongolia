@@ -66,7 +66,7 @@ mvn javadoc:javadoc
 
 It will generate `target/site/apidocs/`. To navigate the docs, just open `index.html`.
 
-### TODO:
+### To do:
 
 - [ ] Tests
 - [ ] Allow accents on JCR queries.
@@ -79,8 +79,6 @@ It will generate `target/site/apidocs/`. To navigate the docs, just open `index.
 - [ ] VirtualUri utilities
 - [ ] Groovy scripts
 - [ ] Email utilities
-
-
 
 ### Contributors
 * **Ignacio Verdón Blázquez** <[iverdon@epigram.es](mailto:iverdon@epigram.es)>
