@@ -56,6 +56,42 @@ public class QueryUtils extends QueryUtil {
     }
 
     /**
+     * Builds a query for the given statement, workspace and language, setting the limit and the offset of the query.
+     *
+     * TODO: Add Javadocs
+     *
+     * @param statement
+     * @param workspace
+     * @param language
+     * @param limit
+     * @param offset
+     * @return
+     * @throws RepositoryException
+     */
+    public static Query getQuery(String statement, String workspace, String language, long limit, long offset) throws RepositoryException {
+        Query query = MgnlContext.getSystemContext().getJCRSession(workspace).getWorkspace().getQueryManager()
+                .createQuery(statement, language);
+
+        if (limit > 0)
+            query.setLimit(limit);
+
+        if (offset > 0)
+            query.setOffset(offset);
+
+        return query;
+    }
+
+    // @TODO: Add Javadocs
+    public static Query getQuery(String statement, String workspace, String language) throws RepositoryException {
+        return getQuery(statement, workspace, language, -1, 0);
+    }
+
+    // @TODO: Add Javadocs
+    public static Query getQuery(String statement, String workspace) throws RepositoryException {
+        return getQuery(statement, workspace, Query.JCR_SQL2);
+    }
+
+    /**
      * Performs a query and retrieves the first available Node. It basically uses
      * {@link #search(String, String, String, String, boolean)} in combination with {@link NodeUtils#getAnyOrNull(NodeIterator)}
      *
@@ -99,12 +135,12 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #getNode(String, String, String, String, boolean)}
      *
-     * @param workspace The desired workspace. Ex: "website"
      * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
      * @return First available Node
      */
-    public static Node getNode(String workspace, String statement, String language) {
+    public static Node getNode(String statement, String workspace, String language) {
         try {
             return NodeUtils.getAnyOrNull(search(workspace, statement, language));
         } catch (Exception e) {
@@ -118,11 +154,11 @@ public class QueryUtils extends QueryUtil {
     /**
      * Refer to {@link #getNode(String, String, String, String, boolean)}
      *
-     * @param workspace The desired workspace. Ex: "website"
      * @param statement The JCR-SQL2 statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
      * @return First available Node
      */
-    public static Node getNode(String workspace, String statement) {
+    public static Node getNode(String statement, String workspace) {
         return getNode(workspace, statement, Query.JCR_SQL2);
     }
 
@@ -139,19 +175,15 @@ public class QueryUtils extends QueryUtil {
      * @param filter A custom node filter
      * @return A collection of nodes
      */
-    public static Collection<Node> getNodesPaginated(String statement, String workspace, String language, int limit, int offset, Predicate<Node> filter) {
+    public static Collection<Node> getNodesPaginated(String statement, String workspace, String language, long limit, long offset, Predicate<Node> filter) {
         try {
-            Query query = MgnlContext.getSystemContext().getJCRSession(workspace).getWorkspace().getQueryManager()
-                    .createQuery(statement, language);
+            Query query = getQuery(statement, workspace, language, limit, offset);
+
+            if (query == null)
+                return Collections.emptyList();
 
             if (filter != null)
-                limit = -1;
-
-            if (limit > 0)
-                query.setLimit(limit);
-
-            if (offset > 0)
-                query.setOffset(offset);
+                query.setLimit(-1);
 
             Collection<Node> nodes = NodeUtils.getCollectionFromNodeIterator(query.execute().getNodes());
 
@@ -236,17 +268,14 @@ public class QueryUtils extends QueryUtil {
      * @param filter An optional custom filter to remove Nodes.
      * @return The count
      */
-    public static Long getNodesCount(String statement, String workspace, String language, Predicate<Node> filter) {
+    public static long getNodesCount(String statement, String workspace, String language, Predicate<Node> filter) {
         try {
-            if (filter == null) {
-                return MgnlContext.getJCRSession(workspace).getWorkspace().getQueryManager()
-                        .createQuery(statement, language).execute().getRows().getSize();
-            }
+            Query query = getQuery(statement, workspace, language);
 
-            Collection<Node> nodes = NodeUtils.getCollectionFromNodeIterator(
-                    MgnlContext.getJCRSession(workspace).getWorkspace()
-                    .getQueryManager().createQuery(statement, language).execute().getNodes()
-            );
+            if (filter == null)
+                return query.execute().getRows().getSize();
+
+            Collection<Node> nodes = NodeUtils.getCollectionFromNodeIterator(query.execute().getNodes());
 
             nodes.removeIf(filter);
 
@@ -266,7 +295,7 @@ public class QueryUtils extends QueryUtil {
      * @param language The query language to use
      * @return The count
      */
-    public static Long getNodesCount(String statement, String workspace, String language) {
+    public static long getNodesCount(String statement, String workspace, String language) {
         return getNodesCount(statement, workspace, language, null);
     }
 
@@ -279,7 +308,7 @@ public class QueryUtils extends QueryUtil {
      * @param filter An optional custom filter to remove Nodes.
      * @return The count
      */
-    public static Long getNodesCount(String statement, String workspace, Predicate<Node> filter) {
+    public static long getNodesCount(String statement, String workspace, Predicate<Node> filter) {
         return getNodesCount(statement, workspace, Query.JCR_SQL2, null);
     }
 
@@ -291,7 +320,7 @@ public class QueryUtils extends QueryUtil {
      * @param workspace The workspace where it should perform the query
      * @return The count
      */
-    public static Long getNodesCount(String statement, String workspace) {
+    public static long getNodesCount(String statement, String workspace) {
         return getNodesCount(statement, workspace, Query.JCR_SQL2);
     }
 
@@ -365,7 +394,7 @@ public class QueryUtils extends QueryUtil {
      * @param limit The maximum amount of nodes that the collection will have
      * @return A collection of nodes limited or empty.
      */
-    public static Collection<Node> limitNodes(Collection<Node> nodes, int limit) {
+    public static Collection<Node> limitNodes(Collection<Node> nodes, long limit) {
         if (nodes == null)
             return Collections.emptyList();
 
