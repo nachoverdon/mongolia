@@ -5,7 +5,6 @@ import com.nachoverdon.mongolia.annotations.Translatable;
 import info.magnolia.cms.i18n.I18nContentSupportFactory;
 import info.magnolia.cms.util.QueryUtil;
 import info.magnolia.context.MgnlContext;
-import info.magnolia.jcr.util.NodeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
