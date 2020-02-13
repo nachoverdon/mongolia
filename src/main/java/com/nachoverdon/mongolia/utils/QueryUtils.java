@@ -191,7 +191,8 @@ public class QueryUtils extends QueryUtil {
      * @param filter A custom node filter
      * @return A collection of nodes
      */
-    public static Collection<Node> getNodesPaginated(String statement, String workspace, String language, long limit, long offset, Predicate<Node> filter) {
+    public static Collection<Node> getNodesPaginated(String statement, String workspace, String language, long limit,
+                                                     long offset, Predicate<Node> filter) {
         try {
             Query query = getQuery(statement, workspace, language, limit, offset);
 
@@ -217,17 +218,24 @@ public class QueryUtils extends QueryUtil {
     }
 
     /**
-     * Gets a collection of nodes, optionally filtered with a custom filter.
+     * Gets a collection of nodes, optionally filtered with a custom filter. To support queries with INNER JOIN, a
+     * selector must be specified,
      *
      * @param statement The SQL/xpath statement that will be executed
      * @param workspace The desired workspace. Ex: "website"
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param selectorName The selector name
      * @param filter A custom node filter
      * @return A collection of nodes
      */
-    public static Collection<Node> getNodes(String statement, String workspace, String language, Predicate<Node> filter) {
+    public static Collection<Node> getNodes(String statement, String workspace, String language, String selectorName,
+                                            Predicate<Node> filter) {
         try {
-            Collection<Node> nodes = NodeUtil.getCollectionFromNodeIterator(search(workspace, statement, language));
+            Collection<Node> nodes = NodeUtils.getCollectionFromNodeIterator(
+                StringUtils.isEmpty(selectorName)
+                    ? search(statement, workspace, language)
+                    : search(statement, workspace, language, selectorName, true)
+            );
 
             if (filter != null)
                 nodes.removeIf(filter);
@@ -239,6 +247,32 @@ public class QueryUtils extends QueryUtil {
     }
 
     /**
+     * Refer to {@link #getNodes(String, String, String, String, Predicate)}
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param filter A custom node filter
+     * @return A collection of nodes
+     */
+    public static Collection<Node> getNodes(String statement, String workspace, String language, Predicate<Node> filter) {
+        return getNodes(statement, workspace, language, null, filter);
+    }
+
+    /**
+     * Refer to {@link #getNodes(String, String, String, String, Predicate)}
+     *
+     * @param statement The SQL/xpath statement that will be executed
+     * @param workspace The desired workspace. Ex: "website"
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param selectorName The selector name
+     * @return A collection of nodes
+     */
+    public static Collection<Node> getNodes(String statement, String workspace, String language, String selectorName) {
+        return getNodes(statement, workspace, language, selectorName, null);
+    }
+
+    /**
      * Refer to {@link #getNodes(String, String, String, Predicate)}
      *
      * @param statement The SQL/xpath statement that will be executed
@@ -247,7 +281,7 @@ public class QueryUtils extends QueryUtil {
      * @return A collection of nodes
      */
     public static Collection<Node> getNodes(String statement, String workspace, String language) {
-        return getNodes(statement, workspace, language, null);
+        return getNodes(statement, workspace, language, "");
     }
 
     /**
@@ -416,4 +450,76 @@ public class QueryUtils extends QueryUtil {
 
         return nodes.stream().limit(limit).collect(Collectors.toList());
     }
+
+    /**
+     * Builds a simple JCR-SQL2 SELECT query. Usage example:
+     * buildSimpleStatement("mgnl:page", "title = 'Home'")
+     * => SELECT * FROM [mgnl:page] WHERE title = 'Home'
+     *
+     * @param nodeType The desired node type to be selected
+     * @param condition An optional condition. If omitted, it will return a select all query.
+     * @return The query statement
+     */
+    public static String buildSimpleStatement(String nodeType, String condition) {
+        String statement = "SELECT * FROM [" + nodeType + "] ";
+
+        if (!StringUtils.isEmpty(condition))
+            statement += " WHERE (" + condition + ")";
+
+        return statement;
+    }
+
+    /**
+     * Refer to {@link #buildSimpleStatement(String, String)}
+     *
+     * @param nodeType The desired node type to be selected
+     * @return The query statement
+     */
+    public static String buildSimpleStatement(String nodeType) {
+        return buildSimpleStatement(nodeType, null);
+    }
+
+    /**
+     * Performs a query using a simple SELECT statement like:
+     *
+     * SELECT * FROM [nodeType] WHERE (condition)
+     *
+     * Optionally filtering the result.
+     *
+     * @param nodeType The desired node type to be selected
+     * @param condition An optional condition. If omitted, it will return a select all query.
+     * @param workspace The workspace where it should perform the query
+     * @param filter An optional custom filter to remove Nodes.
+     * @return
+     */
+    public static Collection<Node> selectFrom(String nodeType, String condition, String workspace, Predicate<Node> filter) {
+        String statement = buildSimpleStatement(nodeType, condition);
+
+        return getNodes(statement, workspace, filter);
+    }
+
+    /**
+     * Refer to {@link #selectFrom(String, String, String, Predicate)}
+     *
+     * @param nodeType The desired node type to be selected
+     * @param workspace The workspace where it should perform the query
+     * @param filter An optional custom filter to remove Nodes.
+     * @return
+     */
+    public static Collection<Node> selectFrom(String nodeType, String workspace, Predicate<Node> filter) {
+        return selectFrom(nodeType, null, workspace, filter);
+    }
+
+    /**
+     * Refer to {@link #selectFrom(String, String, String, Predicate)}
+     *
+     * @param nodeType The desired node type to be selected
+     * @param workspace The workspace where it should perform the query
+     * @return
+     */
+    public static Collection<Node> selectFrom(String nodeType, String workspace) {
+        return selectFrom(nodeType, workspace, null);
+    }
+
+
 }
