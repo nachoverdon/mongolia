@@ -453,7 +453,7 @@ public class QueryUtils extends QueryUtil {
     /**
      * Builds a simple JCR-SQL2 SELECT query. Usage example:
      * buildSimpleStatement("mgnl:page", "title = 'Home'")
-     * => SELECT * FROM [mgnl:page] WHERE title = 'Home'
+     * // "SELECT * FROM [mgnl:page] WHERE title = 'Home'"
      *
      * @param nodeType The desired node type to be selected
      * @param condition An optional condition. If omitted, it will return a select all query.
@@ -489,7 +489,7 @@ public class QueryUtils extends QueryUtil {
      * @param condition An optional condition. If omitted, it will return a select all query.
      * @param workspace The workspace where it should perform the query
      * @param filter An optional custom filter to remove Nodes.
-     * @return
+     * @return A collection of nodes
      */
     public static Collection<Node> selectFrom(String nodeType, String condition, String workspace, Predicate<Node> filter) {
         String statement = buildSimpleStatement(nodeType, condition);
@@ -503,7 +503,7 @@ public class QueryUtils extends QueryUtil {
      * @param nodeType The desired node type to be selected
      * @param workspace The workspace where it should perform the query
      * @param filter An optional custom filter to remove Nodes.
-     * @return
+     * @return A collection of nodes
      */
     public static Collection<Node> selectFrom(String nodeType, String workspace, Predicate<Node> filter) {
         return selectFrom(nodeType, null, workspace, filter);
@@ -514,7 +514,7 @@ public class QueryUtils extends QueryUtil {
      *
      * @param nodeType The desired node type to be selected
      * @param workspace The workspace where it should perform the query
-     * @return
+     * @return A collection of nodes
      */
     public static Collection<Node> selectFrom(String nodeType, String workspace) {
         return selectFrom(nodeType, workspace, null);
