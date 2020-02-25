@@ -62,7 +62,7 @@ public class BrowserDetectedI18nContentSupport extends DefaultI18nContentSupport
     protected Locale getLocaleFromHttpRequest() {
         HttpServletRequest request = Components.getComponent(HttpServletRequest.class);
         String acceptLanguage = request.getHeader("Accept-Language");
-        List<Locale.LanguageRange> ranges = acceptLanguage == null
+        List<Locale.LanguageRange> ranges = (acceptLanguage == null)
                 ? Locale.LanguageRange.parse("en-US,en;q=0.5")
                 : Locale.LanguageRange.parse(acceptLanguage);
         String language = getDefaultLocale().getLanguage();
