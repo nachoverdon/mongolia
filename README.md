@@ -79,6 +79,5 @@ It will generate `target/site/apidocs/`. To navigate the docs, just open `index.
 - [ ] VirtualUri utilities
 - [ ] Groovy scripts
 - [ ] Email utilities
-
-### Contributors
-* **Ignacio Verdón Blázquez** <[iverdon@epigram.es](mailto:iverdon@epigram.es)>
+- [ ] Publish to Maven
+- [ ] Node2Bean using YAML/JSON dynamically.
