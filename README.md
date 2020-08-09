@@ -11,27 +11,27 @@ A Magnolia CMS utilities library
 
 1. Install it on Maven:
 
-```
-mvn install:install-file -Dfile=mongolia-1.0-SNAPSHOT.jar -DgroupId=com.nachoverdon -DartifactId=mongolia 
--Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
-```
+    ```
+    mvn install:install-file -Dfile=mongolia-1.0-SNAPSHOT.jar -DgroupId=com.nachoverdon -DartifactId=mongolia 
+    -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+    ```
 
 1. Add it as a dependency in your module:
 
-```
-<dependencies>
-    <dependency>
-      <groupId>com.nachoverdon</groupId>
-      <artifactId>mongolia</artifactId>
-      <version>1.0-SNAPSHOT</version>
-    </dependency>
-</dependencies>
-```
+    ```xml
+    <dependencies>
+        <dependency>
+          <groupId>com.nachoverdon</groupId>
+          <artifactId>mongolia</artifactId>
+          <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+    ```
 
 1. To use `MongoliaTemplatingFunctions`, add it to your `yourproject-module.xml`:
     
     1. Add it 
-        ```
+        ```xml
         <components>
             <component>
               <type>com.nachoverdon.mongolia.templating.MongoliaTemplatingFunctions</type>
