@@ -6,16 +6,20 @@ import com.nachoverdon.mongolia.utils.LangUtils;
 import com.nachoverdon.mongolia.utils.NodeUtils;
 import com.nachoverdon.mongolia.utils.PropertyUtils;
 import com.nachoverdon.mongolia.utils.ReflectionUtils;
-import info.magnolia.cms.i18n.I18nContentSupportFactory;
+import info.magnolia.cms.i18n.I18nContentSupport;
 import info.magnolia.context.MgnlContext;
+import info.magnolia.objectfactory.Components;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.jcr.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 public class Node2Bean {
@@ -32,9 +36,9 @@ public class Node2Bean {
      * @param lang Optional. The language to get the properties from.
      * @return An object of the given class type.
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T toBean(Node node, Class<T> clazz, String lang) {
-        if (lang == null || lang.equals(StringUtils.EMPTY))
+    @Nullable
+    public static <T> T toBean(Node node, Class<T> clazz, @Nullable String lang) {
+        if (StringUtils.isEmpty(lang))
             lang = LangUtils.getLanguage();
 
         try {
@@ -98,9 +102,10 @@ public class Node2Bean {
                 continue;
 
             try {
+                I18nContentSupport i18nContentSupport = Components.getComponent(I18nContentSupport.class);
                 Field field = clazz.getField(property.getName());
                 String defaultLang = MgnlContext.isWebContext()
-                        ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
+                        ? i18nContentSupport.getFallbackLocale().getLanguage()
                         : LangUtils.DEFAULT_LANG;
 
                 // Check i18n properties to return it correctly
@@ -143,7 +148,6 @@ public class Node2Bean {
      * @throws RepositoryException If the properties or nodes cannot be accessed.
      * @throws IllegalAccessException If the field cannot be set.
      */
-    @SuppressWarnings("unchecked")
     public static <T> void addChildrenNodes(Node node, Collection<String> objectFieldNames, Class<T> clazz,
                                              String lang, Object object) throws RepositoryException, IllegalAccessException {
         NodeIterator nodes = node.getNodes();
@@ -156,7 +160,7 @@ public class Node2Bean {
 
             try {
                 Field field = clazz.getField(children.getName());
-                Class class_ = field.getDeclaredAnnotation(Children.class).typeOf();
+                Class<?> class_ = field.getDeclaredAnnotation(Children.class).typeOf();
                 boolean isCollection = field.getType().getName().equals(Collection.class.getName());
 
                 if (field.getDeclaredAnnotation(Children.class) == null || !isCollection)

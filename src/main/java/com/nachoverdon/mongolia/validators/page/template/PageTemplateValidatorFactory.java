@@ -11,7 +11,8 @@ public class PageTemplateValidatorFactory extends AbstractFieldValidatorFactory<
         super(definition);
     }
 
+    @SuppressWarnings("deprecation")
     public Validator createValidator() {
-        return new PageTemplateValidator(((PageTemplateValidatorDefinition)this.definition).getTemplateName(), this.getI18nErrorMessage());
+        return new PageTemplateValidator(this.definition.getTemplateName(), this.getI18nErrorMessage());
     }
 }

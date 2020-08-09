@@ -2,16 +2,22 @@ package com.nachoverdon.mongolia.utils;
 
 import com.nachoverdon.mongolia.annotations.Children;
 import com.nachoverdon.mongolia.annotations.Translatable;
-import info.magnolia.cms.i18n.I18nContentSupportFactory;
+import info.magnolia.cms.i18n.I18nContentSupport;
 import info.magnolia.cms.util.QueryUtil;
 import info.magnolia.context.MgnlContext;
+import info.magnolia.jcr.util.NodeUtil;
+import info.magnolia.objectfactory.Components;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -66,6 +72,7 @@ public class QueryUtils extends QueryUtil {
      * @return a Query with the given parameters
      * @throws RepositoryException If the Query cannot be created
      */
+    @SuppressWarnings("deprecation")
     public static Query getQuery(String statement, String workspace, String language, long limit, long offset) throws RepositoryException {
         Query query = MgnlContext.getSystemContext().getJCRSession(workspace).getWorkspace().getQueryManager()
                 .createQuery(statement, language);
@@ -120,9 +127,10 @@ public class QueryUtils extends QueryUtil {
      *                   will contain only nodes that are marked by this selector.
      * @return First available Node
      */
+    @Nullable
     public static Node getNode(String statement, String workspace, String language, String returnItemType, boolean isSelector) {
         try {
-            return NodeUtils.getAnyOrNull(search(workspace, statement, language, returnItemType, isSelector));
+            return NodeUtils.getAnyOrNull(search(workspace, statement, language, returnItemType, isSelector, 1, 0));
         } catch (Exception e) {
             log.error("Query failed for workspace [" + workspace + "] and language [" + language
                     + "] with returnItemType [" + returnItemType + "]" + (isSelector ? " as selector" : "")
@@ -155,9 +163,10 @@ public class QueryUtils extends QueryUtil {
      * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
      * @return First available Node
      */
+    @Nullable
     public static Node getNode(String statement, String workspace, String language) {
         try {
-            return NodeUtils.getAnyOrNull(search(workspace, statement, language));
+            return NodeUtils.getAnyOrNull(search(workspace, statement, language, 1));
         } catch (Exception e) {
             log.error("Query failed for workspace [" + workspace + "] and language [" + language + "] for statement:\n"
                     +  statement, e);
@@ -328,7 +337,7 @@ public class QueryUtils extends QueryUtil {
 
             nodes.removeIf(filter);
 
-            return (long) nodes.size();
+            return nodes.size();
         } catch (RepositoryException e) {
             log.error("Could not retrieve total on workspace [" + workspace + "]: " + statement, e);
         }
@@ -358,7 +367,7 @@ public class QueryUtils extends QueryUtil {
      * @return The count
      */
     public static long getNodesCount(String statement, String workspace, Predicate<Node> filter) {
-        return getNodesCount(statement, workspace, Query.JCR_SQL2, null);
+        return getNodesCount(statement, workspace, Query.JCR_SQL2, filter);
     }
 
     /**
@@ -386,7 +395,8 @@ public class QueryUtils extends QueryUtil {
      * @param as The variable name of the node
      * @return The condition of the query
      */
-    public static String setSearchableFields(Class clazz, String searchTerm, String as) {
+    public static String setSearchableFields(Class<?> clazz, String searchTerm, String as) {
+        I18nContentSupport i18nContentSupport = Components.getComponent(I18nContentSupport.class);
         String currentLang = LangUtils.getLanguage();
         Constructor<?> constructor = ReflectionUtils.getEmptyConstructor(clazz);
         StringBuilder addedQuerySB = new StringBuilder();
@@ -403,7 +413,7 @@ public class QueryUtils extends QueryUtil {
                     // Check if is a translatable field
                     if (field.getDeclaredAnnotation(Translatable.class) != null) {
                         String defaultLang = MgnlContext.isWebContext()
-                                ? I18nContentSupportFactory.getI18nSupport().getFallbackLocale().getLanguage()
+                                ? i18nContentSupport.getFallbackLocale().getLanguage()
                                 : LangUtils.DEFAULT_LANG;
 
                         fieldName += !currentLang.equals(defaultLang) ? "_" + currentLang : "";
@@ -452,30 +462,59 @@ public class QueryUtils extends QueryUtil {
 
     /**
      * Builds a simple JCR-SQL2 SELECT query. Usage example:
-     * buildSimpleStatement("mgnl:page", "title = 'Home'")
+     * buildSqlStatement("mgnl:page", "AND", "title = 'Home'", "lang = 'es'")
+     * // "SELECT * FROM [mgnl:page] WHERE title = 'Home' AND lang = 'es'"
+     *
+     * @param nodeType The desired node type to be selected
+     * @param conditionType An optional condition. Must be "AND" or "OR".
+     * @param conditions An optional condition. If omitted, it will return a select all query.
+     * @return The query statement
+     */
+    public static String buildSqlStatement(String nodeType, @Nullable String conditionType, @Nullable String ...conditions) {
+        final StringBuilder statement = new StringBuilder("SELECT * FROM [" + nodeType + "] ");
+
+        if (ArrayUtils.isEmpty(conditions))
+            return statement.toString();
+
+        statement.append(" WHERE ");
+
+        int index = 0;
+
+        for (String condition: conditions) {
+            if (StringUtils.isNotEmpty(condition))
+                statement.append(" (").append(condition).append(") ");
+
+            index++;
+
+            if (index != conditions.length)
+                statement.append(conditionType);
+
+        }
+
+        return statement.toString();
+    }
+
+    /**
+     * Builds a simple JCR-SQL2 SELECT query. Usage example:
+     * buildSqlStatement("mgnl:page", "title = 'Home'")
      * // "SELECT * FROM [mgnl:page] WHERE title = 'Home'"
      *
      * @param nodeType The desired node type to be selected
      * @param condition An optional condition. If omitted, it will return a select all query.
      * @return The query statement
      */
-    public static String buildSimpleStatement(String nodeType, String condition) {
-        String statement = "SELECT * FROM [" + nodeType + "] ";
-
-        if (!StringUtils.isEmpty(condition))
-            statement += " WHERE (" + condition + ")";
-
-        return statement;
+    public static String buildSqlStatement(String nodeType, @Nullable String condition) {
+        return buildSqlStatement(nodeType, null, condition);
     }
 
     /**
-     * Refer to {@link #buildSimpleStatement(String, String)}
+     * Refer to {@link #buildSqlStatement(String, String)}
      *
      * @param nodeType The desired node type to be selected
      * @return The query statement
      */
-    public static String buildSimpleStatement(String nodeType) {
-        return buildSimpleStatement(nodeType, null);
+    public static String buildSqlStatement(String nodeType) {
+        return buildSqlStatement(nodeType, null);
     }
 
     /**
@@ -492,7 +531,7 @@ public class QueryUtils extends QueryUtil {
      * @return A collection of nodes
      */
     public static Collection<Node> selectFrom(String nodeType, String condition, String workspace, Predicate<Node> filter) {
-        String statement = buildSimpleStatement(nodeType, condition);
+        String statement = buildSqlStatement(nodeType, condition);
 
         return getNodes(statement, workspace, filter);
     }
@@ -520,5 +559,73 @@ public class QueryUtils extends QueryUtil {
         return selectFrom(nodeType, workspace, null);
     }
 
+    /**
+     * Performs {@link QueryUtil#search(String, String, String, String, boolean)} with a Query from
+     * {@link #getQuery(String, String, String, long, long)}
+     *
+     * @param workspace The desired workspace. Ex: "website"
+     * @param statement The SQL/xpath statement that will be executed
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param returnItemType Searches for statement and then pops-up in the node hierarchy until returnItemType is
+     *                       found. If the result is not returnItemType or none of its parents are then next node in
+     *                       result is checked. Duplicate nodes are removed from result.
+     * @param isSelector If isSelector is set to true then returnItemType will be used as the selector and result
+     *                   will contain only nodes that are marked by this selector.
+     * @param limit The maximum amount of nodes to retrieve
+     * @param offset The offset of the query
+     * @return A collection of nodes
+     * @throws RepositoryException Possible exceptions related to the JCR repository
+     */
+    public static NodeIterator search(String workspace, String statement, String language, String returnItemType, boolean isSelector, long limit, long offset) throws RepositoryException {
+        QueryResult result = getQuery(statement, workspace, language, limit, offset).execute();
 
+        if (isSelector)
+            return NodeUtil.filterDuplicates(NodeUtil.filterParentNodeType(result.getRows(), returnItemType));
+
+        return NodeUtil.filterDuplicates(NodeUtil.filterParentNodeType(result.getNodes(), returnItemType));
+    }
+
+    /**
+     * Executes a query limiting its results
+     *
+     * @param workspace The desired workspace. Ex: "website"
+     * @param statement The SQL/xpath statement that will be executed
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param limit The maximum amount of nodes to retrieve
+     * @param offset The offset of the query
+     * @return A collection of nodes
+     * @throws RepositoryException Possible exceptions related to the JCR repository
+     */
+    public static NodeIterator search(String workspace, String statement, String language, long limit, long offset) throws RepositoryException {
+        QueryResult result = getQuery(statement, workspace, language, limit, offset).execute();
+
+        return NodeUtil.filterDuplicates(result.getNodes());
+    }
+
+    /**
+     * Refer to {@link #search(String, String, String, long, long)}
+     *
+     * @param workspace The desired workspace. Ex: "website"
+     * @param statement The SQL/xpath statement that will be executed
+     * @param language The language that will be used. Ex: "JCR-SQL2" {@link javax.jcr.query.Query}
+     * @param limit The maximum amount of nodes to retrieve
+     * @return A collection of nodes
+     * @throws RepositoryException Possible exceptions related to the JCR repository
+     */
+    public static NodeIterator search(String workspace, String statement, String language, long limit) throws RepositoryException {
+        return search(statement, workspace, language, limit, 0);
+    }
+
+    /**
+     * Refer to {@link #search(String, String, String, long, long)}
+     *
+     * @param workspace The desired workspace. Ex: "website"
+     * @param statement The SQL/xpath statement that will be executed
+     * @param limit The maximum amount of nodes to retrieve
+     * @return A collection of nodes
+     * @throws RepositoryException Possible exceptions related to the JCR repository
+     */
+    public static NodeIterator search(String workspace, String statement, long limit) throws RepositoryException {
+        return search(statement, workspace, Query.JCR_SQL2, limit, 0);
+    }
 }

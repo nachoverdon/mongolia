@@ -1,11 +1,15 @@
 package com.nachoverdon.mongolia.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
+import javax.annotation.Nullable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ReflectionUtils {
 
     /**
@@ -14,7 +18,7 @@ public class ReflectionUtils {
      * @param clazz The class to read fields from
      * @return A list for Fields
      */
-    public static List<Field> getAllPublicAndProtectedFields(Class clazz) {
+    public static List<Field> getAllPublicAndProtectedFields(Class<?> clazz) {
         if (clazz == null)
             return Collections.emptyList();
 
@@ -31,14 +35,20 @@ public class ReflectionUtils {
     /**
      * Gets a constructor that takes no parameters from the given class
      *
+     * @param <T> The class to get the constructor from
      * @param clazz The class to get the constructor from
      * @return The empty constructor or null
      */
-    public static Constructor getEmptyConstructor(Class clazz) {
+    @Nullable
+    public static <T> Constructor<T> getEmptyConstructor(Class<T> clazz) {
 
-        for (Constructor ctr: clazz.getConstructors()) {
+        try {
+            Constructor<T> ctr = clazz.getConstructor();
+
             if (ctr.getParameterCount() == 0)
                 return ctr;
+        } catch (NoSuchMethodException e) {
+            log.error("Class " + clazz.getSimpleName() + " doesn't have an empty constructor", e);
         }
 
         return null;

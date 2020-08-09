@@ -26,9 +26,9 @@ public class MongoliaTemplatingFunctions {
 
     public static final String NAME = "mongofn";
 
-    private I18nContentSupport i18nContentSupport;
-    private TemplatingFunctions cmsfn;
-    private DamTemplatingFunctions damfn;
+    private final I18nContentSupport i18nContentSupport;
+    private final TemplatingFunctions cmsfn;
+    private final DamTemplatingFunctions damfn;
 
     @Inject
     public MongoliaTemplatingFunctions(
@@ -168,7 +168,7 @@ public class MongoliaTemplatingFunctions {
      */
     public String resourcesImageToBase64(String path, String mimeType) {
         try {
-            ResourceOrigin resourceOrigin = Components.getComponent(ResourceOrigin.class);
+            ResourceOrigin<?> resourceOrigin = Components.getComponent(ResourceOrigin.class);
 
             return ImageUtils.imageToBase64(resourceOrigin.getByPath(path).openStream(), mimeType);
         } catch (Exception e) {

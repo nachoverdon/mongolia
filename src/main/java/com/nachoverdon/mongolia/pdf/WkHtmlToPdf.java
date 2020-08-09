@@ -3,6 +3,7 @@ package com.nachoverdon.mongolia.pdf;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 
+import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -44,6 +45,7 @@ public class WkHtmlToPdf {
      * @param parameters A list of wkhtmltopdf parameters. ex: Arrays.asList("--header-html", "my/path/header.html");
      * @return An InputStream with the PDF data.
      */
+    @Nullable
     public static InputStream generatePdfAsInputStream(String html, List<String> parameters) {
         List<String> command = Arrays.asList("wkhtmltopdf", "-q");
 

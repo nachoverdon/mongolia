@@ -34,8 +34,9 @@ import javax.jcr.query.Query;
  * }</pre>
  *
  */
+@SuppressWarnings("deprecation")
 public class PageTemplateValidator extends AbstractStringValidator {
-    private String templateName;
+    private final String templateName;
 
     public PageTemplateValidator(String templateName, String errorMessage) {
         super(errorMessage);

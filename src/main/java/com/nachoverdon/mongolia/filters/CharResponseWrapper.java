@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 public class CharResponseWrapper extends HttpServletResponseWrapper {
 
-    private CharArrayWriter charWriter;
+    private final CharArrayWriter charWriter;
     private PrintWriter writer;
     private boolean getOutputStreamCalled;
     private boolean getWriterCalled;

@@ -3,6 +3,7 @@ package com.nachoverdon.mongolia.utils;
 import info.magnolia.jcr.util.PropertyUtil;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.annotation.Nullable;
 import javax.jcr.*;
 import java.util.Date;
 import java.util.function.Consumer;
@@ -16,6 +17,7 @@ public class PropertyUtils extends PropertyUtil {
      * @param property A Node's property
      * @return The value of the property
      */
+    @Nullable
     public static Object getPropertyByType(Property property) {
         try {
             Value value = property.getValue();
