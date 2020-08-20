@@ -5,7 +5,6 @@ import info.magnolia.module.DefaultModuleVersionHandler;
 import info.magnolia.module.InstallContext;
 import info.magnolia.module.delta.Task;
 import info.magnolia.rendering.module.setup.InstallRendererContextAttributeTask;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,17 +18,17 @@ import java.util.List;
  * @see info.magnolia.module.delta.Task
  */
 public class MongoliaModuleVersionHandler extends DefaultModuleVersionHandler {
-    @Override
-    protected List<Task> getExtraInstallTasks(InstallContext installContext) {
-        String name = MongoliaTemplatingFunctions.NAME,
-            className = MongoliaTemplatingFunctions.class.getName();
-        List<Task> extraInstallTasks = new ArrayList<>(super.getExtraInstallTasks(installContext)),
-            tasks = new ArrayList<>();
+  @Override
+  protected List<Task> getExtraInstallTasks(InstallContext installContext) {
+    String name = MongoliaTemplatingFunctions.NAME;
+    String className = MongoliaTemplatingFunctions.class.getName();
+    List<Task> extraInstallTasks = new ArrayList<>(super.getExtraInstallTasks(installContext));
+    List<Task> tasks = new ArrayList<>();
 
-        tasks.add(new InstallRendererContextAttributeTask("rendering", "freemarker", name, className));
-        tasks.add(new InstallRendererContextAttributeTask("site", "site", name, className));
-        extraInstallTasks.addAll(tasks);
+    tasks.add(new InstallRendererContextAttributeTask("rendering", "freemarker", name, className));
+    tasks.add(new InstallRendererContextAttributeTask("site", "site", name, className));
+    extraInstallTasks.addAll(tasks);
 
-        return extraInstallTasks;
-    }
+    return extraInstallTasks;
+  }
 }

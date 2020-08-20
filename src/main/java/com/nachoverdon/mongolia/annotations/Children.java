@@ -8,5 +8,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Children {
-    Class<?> typeOf();
+  /**
+   * The type of the node.
+   *
+   * @return the type of the node.
+   */
+  Class<?> typeOf();
 }

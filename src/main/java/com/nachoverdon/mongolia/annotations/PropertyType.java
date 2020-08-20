@@ -8,5 +8,12 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface PropertyType {
-    int type();
+  /**
+   * The type of the property.
+   *
+   * @see javax.jcr.PropertyType
+   *
+   * @return The type of the property.
+   */
+  int type();
 }
