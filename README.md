@@ -58,13 +58,23 @@ A Magnolia CMS utilities library
 
 ### Generating JavaDoc
 
-To generate the JavaDoc you need to use the following command.
+To generate the JavaDoc you need to use the following command:
 
 ```
 mvn javadoc:javadoc
 ```
 
 It will generate `target/site/apidocs/`. To navigate the docs, just open `index.html`.
+
+### Style checking
+
+To check the style of the Java code you need to use the following command:
+
+```
+mvn checkstyle:check
+```
+
+Please, check the style of your code and fix any issue before committing your changes.
 
 ### To do:
 
