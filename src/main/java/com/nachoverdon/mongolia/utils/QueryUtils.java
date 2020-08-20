@@ -494,7 +494,7 @@ public class QueryUtils extends QueryUtil {
    * @return The query statement
    */
   public static String buildSqlStatement(String nodeType, @Nullable String conditionType,
-                                         @Nullable String ...conditions) {
+                                         @Nullable String...conditions) {
     final StringBuilder statement = new StringBuilder("SELECT * FROM [" + nodeType + "] ");
 
     if (ArrayUtils.isEmpty(conditions)) {
