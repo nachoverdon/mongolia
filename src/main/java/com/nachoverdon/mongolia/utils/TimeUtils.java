@@ -87,7 +87,6 @@ public class TimeUtils {
    * @return The time in seconds
    */
   public static int dateToSeconds(Date date) {
-    // @d0nt
     return msToSeconds(date.getTime());
   }
 }
