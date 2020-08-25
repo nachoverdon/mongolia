@@ -27,7 +27,7 @@ public class SalesLayerExporter {
 
     builder.registerTypeAdapter(boolean.class, new BooleanTypeAdapter());
 
-    Gson gson= builder.create();
+    Gson gson = builder.create();
 
     try {
       URL url = new URL(config.toString());

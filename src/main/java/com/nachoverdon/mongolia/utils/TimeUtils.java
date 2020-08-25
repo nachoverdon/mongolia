@@ -72,6 +72,9 @@ public class TimeUtils {
 
   /**
    *  Converts milliseconds to seconds.
+   *
+   * @param time The time in milliseconds.
+   * @return The time in seconds
    */
   public static int msToSeconds(long time) {
     return (int) time / 1000;
@@ -79,8 +82,12 @@ public class TimeUtils {
 
   /**
    *  Converts date to seconds.
+   *
+   * @param date The Date object.
+   * @return The time in seconds
    */
   public static int dateToSeconds(Date date) {
+    // @d0nt
     return msToSeconds(date.getTime());
   }
 }
