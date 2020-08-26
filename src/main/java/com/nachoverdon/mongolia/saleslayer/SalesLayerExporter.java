@@ -12,6 +12,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import lombok.AllArgsConstructor;
+import lombok.Cleanup;
 import lombok.Getter;
 import org.apache.commons.io.IOUtils;
 
@@ -27,14 +28,13 @@ public class SalesLayerExporter {
    */
   @Nullable
   public SalesLayerResponse fetchData() {
-    HttpURLConnection con = null;
     Gson gson = new GsonBuilder()
-        .registerTypeAdapter(boolean.class, new BooleanTypeAdapter())
-        .create();
+          .registerTypeAdapter(boolean.class, new BooleanTypeAdapter())
+          .create();
 
     try {
       URL url = new URL(config.toString());
-      con = (HttpURLConnection) url.openConnection();
+      @Cleanup("disconnect") HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
       con.setRequestMethod("GET");
       con.setDoOutput(false);
@@ -48,16 +48,11 @@ public class SalesLayerExporter {
       con.disconnect();
 
       return gson.fromJson(response, SalesLayerResponse.class);
-
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
-      if (con != null) {
-        con.disconnect();
-      }
-    }
 
-    return null;
+      return null;
+    }
   }
 
   static class BooleanTypeAdapter implements JsonDeserializer<Boolean> {
