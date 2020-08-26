@@ -48,6 +48,7 @@ public class SalesLayerExporter {
       con.disconnect();
 
       return gson.fromJson(response, SalesLayerResponse.class);
+
     } catch (Exception e) {
       e.printStackTrace();
     } finally {

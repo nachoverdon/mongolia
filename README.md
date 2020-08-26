@@ -78,6 +78,16 @@ Please, check the style of your code and fix any issue before committing your ch
 
 ### To do:
 
+- [ ] Sales Layer
+    - [X] Configuration options
+    - [ ] Fetch data.
+        - [X] GET request.
+        - [ ] Recursion for paginated requests.
+    - [ ] Response to Nodes
+        - [ ] Transform the JSON to a Bean
+        - [ ] Use JCROM for Bean to Node mapping
+        - [ ] Transform the JSON to Node directly using the schema?
+        - [ ] Allow special data treatment (like string replacements, etc...)    
 - [ ] Tests
 - [ ] Allow accents on JCR queries.
 - [ ] Pagination utilities
