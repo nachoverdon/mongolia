@@ -12,8 +12,7 @@ A Magnolia CMS utilities library
 1. Install it on Maven:
 
     ```
-    mvn install:install-file -Dfile=mongolia-1.0-SNAPSHOT.jar -DgroupId=com.nachoverdon -DartifactId=mongolia 
-    -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
+    mvn install:install-file -Dfile=mongolia-1.0-SNAPSHOT.jar -DgroupId=com.nachoverdon -DartifactId=mongolia -Dversion=1.0-SNAPSHOT -Dpackaging=jar -DgeneratePom=true
     ```
 
 1. Add it as a dependency in your module:
