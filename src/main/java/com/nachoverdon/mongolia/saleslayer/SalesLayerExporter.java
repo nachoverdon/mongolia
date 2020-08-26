@@ -20,14 +20,17 @@ import org.apache.commons.io.IOUtils;
 public class SalesLayerExporter {
   private final SalesLayerConfig config;
 
+  /**
+   * Creates a GET request to the Sales Layer API.
+   *
+   * @return SalesLayerResponse The response from the API.
+   */
   @Nullable
-  private SalesLayerResponse fetchData() {
+  public SalesLayerResponse fetchData() {
     HttpURLConnection con = null;
-    GsonBuilder builder = new GsonBuilder();
-
-    builder.registerTypeAdapter(boolean.class, new BooleanTypeAdapter());
-
-    Gson gson = builder.create();
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapter(boolean.class, new BooleanTypeAdapter())
+        .create();
 
     try {
       URL url = new URL(config.toString());
