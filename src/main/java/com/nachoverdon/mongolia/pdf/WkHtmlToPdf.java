@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -69,16 +70,17 @@ public class WkHtmlToPdf {
     // respectively.
     command.addAll(Arrays.asList("-", "-"));
 
-    Process process = null;
-
     try {
       // Create a process with the given command and parameters and start it
       ProcessBuilder processBuilder = new ProcessBuilder(command);
+
       processBuilder.redirectErrorStream(true);
-      process = processBuilder.start();
+
+      @Cleanup("destroy") Process process = processBuilder.start();
 
       // HTML to PDF
       OutputStream outputStream = process.getOutputStream();
+
       IOUtils.write(html.getBytes(StandardCharsets.UTF_8.name()), outputStream);
       outputStream.close();
 
@@ -90,10 +92,6 @@ public class WkHtmlToPdf {
       return inputStream;
     } catch (IOException | InterruptedException e) {
       log.error(e.getMessage());
-    } finally {
-      if (process != null) {
-        process.destroy();
-      }
     }
 
     return null;
