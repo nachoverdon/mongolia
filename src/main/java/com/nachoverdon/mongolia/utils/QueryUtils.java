@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
+import javax.jcr.Workspace;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryResult;
 import lombok.extern.slf4j.Slf4j;
@@ -59,6 +60,18 @@ public class QueryUtils extends QueryUtil {
   }
 
   /**
+   * Get a workspace by its name.
+   *
+   * @param workspace The desired workspace. Ex: "website"
+   * @return Workspace
+   * @throws RepositoryException If the Workspace doesn't exist or can't be accessed.
+   */
+  @SuppressWarnings("deprecation")
+  public static Workspace getWorkspace(String workspace) throws RepositoryException {
+    return MgnlContext.getSystemContext().getJCRSession(workspace).getWorkspace();
+  }
+
+  /**
    * Builds a query for the given statement, workspace and language, setting the limit and the
    * offset of the query.
    *
@@ -70,10 +83,9 @@ public class QueryUtils extends QueryUtil {
    * @return a Query with the given parameters
    * @throws RepositoryException If the Query cannot be created
    */
-  @SuppressWarnings("deprecation")
   public static Query getQuery(String statement, String workspace, String language, long limit,
                                long offset) throws RepositoryException {
-    Query query = MgnlContext.getSystemContext().getJCRSession(workspace).getWorkspace()
+    Query query = getWorkspace(workspace)
         .getQueryManager().createQuery(statement, language);
 
     if (limit > 0) {

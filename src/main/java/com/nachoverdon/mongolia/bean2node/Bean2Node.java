@@ -42,20 +42,18 @@ public class Bean2Node {
    * @return Node The transformed node.
    */
   @Nullable
-  public static <T> Node toNode(T obj, Node parentNode, String nodePath, String nodeType) {
+  public static <T> Node toNode(T obj, Node parentNode, String nodePath) {
     init();
 
     Node node = null;
 
     try {
-      // If the Node exists, just update it, don't add it.
-      if (parentNode.hasNode(nodePath)) {
-        node = mapper.updateNode(parentNode.getNode(nodePath), obj);
-      } else {
+      // If the Node doesn't exists, create it.
+      if (!parentNode.hasNode(nodePath)) {
         node = mapper.addNode(parentNode, obj);
-        node.setPrimaryType(nodeType);
+      } else {
+        node = mapper.updateNode(parentNode.getNode(nodePath), obj);
       }
-
     } catch (RepositoryException e) {
       log.error("Unable to create node " + nodePath, e);
     }
