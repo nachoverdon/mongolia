@@ -84,6 +84,15 @@ public class SalesLayerConfig {
   }
 
   /**
+   * Whether the request is paginated or not.
+   *
+   * @return boolean
+   */
+  public boolean isPaginated() {
+    return pagination > 0;
+  }
+
+  /**
    * Gets the object as a Map of strings.
    *
    * @return A Map of the parameters
