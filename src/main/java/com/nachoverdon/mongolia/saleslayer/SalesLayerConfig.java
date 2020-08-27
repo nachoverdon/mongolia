@@ -66,7 +66,7 @@ public class SalesLayerConfig {
    * @param secretKey The secret key of the connector.
    * @param lastUpdate The timestamp from the last update we want to fetch.
    */
-  public SalesLayerConfig(String code, String secretKey, int lastUpdate) {
+  public SalesLayerConfig(String code, String secretKey, long lastUpdate) {
     this.code = code;
     this.secretKey = secretKey;
     this.lastUpdate = lastUpdate;
@@ -78,7 +78,7 @@ public class SalesLayerConfig {
    * Generates the time, unique and key256 parameters.
    */
   public void generateKey() {
-    this.time = (int) (new Date().getTime() / 1000);
+    this.time = new Date().getTime() / 1000;
     this.unique = Math.abs(new Random().nextInt());
     this.key256 = DigestUtils.sha256Hex(code + secretKey + time + unique);
   }
