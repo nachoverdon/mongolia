@@ -123,7 +123,7 @@ public class SalesLayerConfig {
         + "&key256=" + key256
         + "&last_update=" + lastUpdate
         + "&ver=" + ver
-        // + "&pagination=" + pagination
+        + "&pagination=" + pagination
         + "&group_category_id=" + BooleanUtils.toInteger(groupCategoryId)
         + "&compression=" + BooleanUtils.toInteger(compression)
         + "&test=" + BooleanUtils.toInteger(test);
