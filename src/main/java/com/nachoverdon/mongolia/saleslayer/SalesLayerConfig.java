@@ -78,7 +78,7 @@ public class SalesLayerConfig {
    * Generates the time, unique and key256 parameters.
    */
   public void generateKey() {
-    this.time = TimeUtils.nowInMs();
+    this.time = TimeUtils.nowInSeconds();
     this.unique = Math.abs(new Random().nextInt());
     this.key256 = DigestUtils.sha256Hex(code + secretKey + time + unique);
   }
