@@ -1,6 +1,6 @@
 package com.nachoverdon.mongolia.saleslayer;
 
-import java.util.Date;
+import com.nachoverdon.mongolia.utils.TimeUtils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -78,7 +78,7 @@ public class SalesLayerConfig {
    * Generates the time, unique and key256 parameters.
    */
   public void generateKey() {
-    this.time = new Date().getTime() / 1000;
+    this.time = TimeUtils.nowInMs();
     this.unique = Math.abs(new Random().nextInt());
     this.key256 = DigestUtils.sha256Hex(code + secretKey + time + unique);
   }
