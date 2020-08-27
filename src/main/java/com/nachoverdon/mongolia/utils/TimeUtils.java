@@ -97,7 +97,7 @@ public class TimeUtils {
    * @return The time in seconds
    */
   public static long msToSeconds(long time) {
-    return (int) time / 1000;
+    return time / 1000;
   }
 
   /**
