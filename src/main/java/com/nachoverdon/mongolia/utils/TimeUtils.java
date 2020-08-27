@@ -28,12 +28,22 @@ public class TimeUtils {
   }
 
   /**
+   * Gets a date hours ago from now in milliseconds.
+   *
+   * @param hours How many hours ago.
+   * @return The time in milliseconds
+   */
+  public static long hoursAgoInMs(int hours) {
+    return hoursAgo(Calendar.getInstance(), hours).getTime();
+  }
+
+  /**
    * Gets a date hours ago from now in seconds.
    *
    * @param hours How many hours ago.
-   * @return Date
+   * @return The time in seconds
    */
-  public static int hoursAgoInSeconds(int hours) {
+  public static long hoursAgoInSeconds(int hours) {
     return dateToSeconds(hoursAgo(Calendar.getInstance(), hours));
   }
 
@@ -61,12 +71,22 @@ public class TimeUtils {
   }
 
   /**
+   * Gets a date days ago from now in milliseconds.
+   *
+   * @param days How many days ago.
+   * @return The time in milliseconds
+   */
+  public static long daysAgoInMs(int days) {
+    return daysAgo(Calendar.getInstance(), days).getTime();
+  }
+
+  /**
    * Gets a date days ago from now in seconds.
    *
    * @param days How many days ago.
-   * @return Date
+   * @return The time in seconds
    */
-  public static int daysAgoInSeconds(int days) {
+  public static long daysAgoInSeconds(int days) {
     return dateToSeconds(daysAgo(Calendar.getInstance(), days));
   }
 
@@ -76,7 +96,7 @@ public class TimeUtils {
    * @param time The time in milliseconds.
    * @return The time in seconds
    */
-  public static int msToSeconds(long time) {
+  public static long msToSeconds(long time) {
     return (int) time / 1000;
   }
 
@@ -86,7 +106,7 @@ public class TimeUtils {
    * @param date The Date object.
    * @return The time in seconds
    */
-  public static int dateToSeconds(Date date) {
+  public static long dateToSeconds(Date date) {
     return msToSeconds(date.getTime());
   }
 }

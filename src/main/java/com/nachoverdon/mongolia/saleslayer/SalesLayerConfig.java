@@ -23,7 +23,7 @@ public class SalesLayerConfig {
   /**
    * timestamp() (International POSIX datel).
    */
-  private int time;
+  private long time;
   /**
    * Random security number.
    */
@@ -35,7 +35,7 @@ public class SalesLayerConfig {
   /**
    * The timestamp from the last update we want to fetch.
    */
-  private int lastUpdate;
+  private long lastUpdate;
   /**
    * Version of the SL API.
    * @see <a href="https://support.saleslayer.com/api/versioning-sales-layer-api">SL API</a>
