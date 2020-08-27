@@ -24,7 +24,7 @@ public class TimeUtils {
    * @return Date.
    */
   public static Date hoursAgo(int hours) {
-    return hoursAgo(Calendar.getInstance(), hours);
+    return hoursAgo(now(), hours);
   }
 
   /**
@@ -34,7 +34,7 @@ public class TimeUtils {
    * @return The time in milliseconds.
    */
   public static long hoursAgoInMs(int hours) {
-    return hoursAgo(Calendar.getInstance(), hours).getTime();
+    return hoursAgo(now(), hours).getTime();
   }
 
   /**
@@ -44,7 +44,7 @@ public class TimeUtils {
    * @return The time in seconds.
    */
   public static long hoursAgoInSeconds(int hours) {
-    return dateToSeconds(hoursAgo(Calendar.getInstance(), hours));
+    return dateToSeconds(hoursAgo(now(), hours));
   }
 
   /**
@@ -67,7 +67,7 @@ public class TimeUtils {
    * @return Date.
    */
   public static Date daysAgo(int days) {
-    return daysAgo(Calendar.getInstance(), days);
+    return daysAgo(now(), days);
   }
 
   /**
@@ -77,7 +77,7 @@ public class TimeUtils {
    * @return The time in milliseconds.
    */
   public static long daysAgoInMs(int days) {
-    return daysAgo(Calendar.getInstance(), days).getTime();
+    return daysAgo(now(), days).getTime();
   }
 
   /**
@@ -87,7 +87,7 @@ public class TimeUtils {
    * @return The time in seconds.
    */
   public static long daysAgoInSeconds(int days) {
-    return dateToSeconds(daysAgo(Calendar.getInstance(), days));
+    return dateToSeconds(daysAgo(now(), days));
   }
 
   /**
@@ -111,12 +111,21 @@ public class TimeUtils {
   }
 
   /**
+   *  Gets the Calendar instance.
+   *
+   * @return Calendar.
+   */
+  public static Calendar now() {
+    return Calendar.getInstance();
+  }
+
+  /**
    *  Gets the actual time as a Date object.
    *
    * @return Date.
    */
-  public static Date now() {
-    return Calendar.getInstance().getTime();
+  public static Date nowAsDate() {
+    return now().getTime();
   }
 
   /**
@@ -125,7 +134,7 @@ public class TimeUtils {
    * @return The time in milliseconds.
    */
   public static long nowInMs() {
-    return now().getTime();
+    return nowAsDate().getTime();
   }
 
   /**
