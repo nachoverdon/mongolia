@@ -1,9 +1,9 @@
 package com.nachoverdon.mongolia.saleslayer;
 
 import com.nachoverdon.mongolia.utils.TimeUtils;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import lombok.Data;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -38,6 +38,7 @@ public class SalesLayerConfig {
   private long lastUpdate;
   /**
    * Version of the SL API.
+   *
    * @see <a href="https://support.saleslayer.com/api/versioning-sales-layer-api">SL API</a>
    */
   private String ver = "1.18";
@@ -47,6 +48,7 @@ public class SalesLayerConfig {
   private boolean test = false;
   /**
    * If set to true, the API will return the multi-category products grouped together.
+   *
    * @see <a href="https://support.saleslayer.com/api/other-modeling-parameters">SL API</a>
    */
   private boolean groupCategoryId = true;
@@ -79,7 +81,7 @@ public class SalesLayerConfig {
    */
   public void generateKey() {
     this.time = TimeUtils.nowInSeconds();
-    this.unique = Math.abs(new Random().nextInt());
+    this.unique = Math.abs(new SecureRandom().nextInt());
     this.key256 = DigestUtils.sha256Hex(code + secretKey + time + unique);
   }
 
