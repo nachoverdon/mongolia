@@ -58,7 +58,7 @@
     <dependency>
       <groupId>info.magnolia.dam</groupId>
       <artifactId>magnolia-dam-api</artifactId>
-      <version>3.0.4</version>
+      <version>3.0.5</version>
     </dependency>
     <dependency>
       <groupId>info.magnolia.dam</groupId>
