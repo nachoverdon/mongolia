@@ -15,7 +15,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <magnoliaBundleVersion>6.2.6</magnoliaBundleVersion>
+    <magnoliaBundleVersion>6.2.12</magnoliaBundleVersion>
   </properties>
 
   <dependencies>
